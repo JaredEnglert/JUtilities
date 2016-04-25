@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{74FFE74C-B542-4445-9F27-C51D4AF80A67}</ProjectGuid>
+    <ProjectGuid>{57528344-A5EE-43AD-853C-88D962650C5C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>JUtilities.Extensions.Test.Unit</RootNamespace>
-    <AssemblyName>JUtilities.Extensions.Test.Unit</AssemblyName>
+    <RootNamespace>JUtilities.Settings.Test.Unit</RootNamespace>
+    <AssemblyName>JUtilities.Settings.Test.Unit</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -60,20 +60,20 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="Mocks\MockEnum.cs" />
-    <Compile Include="TestClasses\ObjectExtensions\ToTypeTTests.cs" />
+    <Compile Include="TestClasses\AppSettingsApplicationProviderTests.cs" />
+    <Compile Include="TestClasses\AppSettingsConnectionStringProviderTests.cs" />
+    <Compile Include="TestClasses\AppSettingsSettingsProviderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestClasses\TypeExtensions\ImplementsInterfaceTests.cs" />
-    <Compile Include="TestClasses\TypeExtensions\IsGuidTests.cs" />
-    <Compile Include="TestClasses\TypeExtensions\IsNullableTests.cs" />
+    <Compile Include="TestClasses\AppSettingsEnvironmentProviderTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\JUtilities.Extensions\JUtilities.Extensions.csproj">
-      <Project>{05291AD2-5A85-4073-AA58-36F035B0F75E}</Project>
-      <Name>JUtilities.Extensions</Name>
+    <ProjectReference Include="..\JUtilities.Settings\JUtilities.Settings.csproj">
+      <Project>{203f2b50-c86e-4b15-ad0d-5f5860ada816}</Project>
+      <Name>JUtilities.Settings</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Choose>

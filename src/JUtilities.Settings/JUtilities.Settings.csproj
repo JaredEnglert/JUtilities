@@ -41,9 +41,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppSettingsApplicationProvider.cs" />
     <Compile Include="AppSettingsConnectionStringProvider.cs" />
-    <Compile Include="AppSettingsProvider.cs" />
+    <Compile Include="AppSettingsEnvironmentProvider.cs" />
+    <Compile Include="AppSettingsSettingsProvider.cs" />
+    <Compile Include="IApplicationProvider.cs" />
     <Compile Include="IConnectionStringProvider.cs" />
+    <Compile Include="IEnvironmentProvider.cs" />
     <Compile Include="ISettingsProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

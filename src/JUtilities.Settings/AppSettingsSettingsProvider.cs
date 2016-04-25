@@ -4,24 +4,8 @@ using JUtilities.Extensions;
 
 namespace JUtilities.Settings
 {
-    public class AppSettingsProvider : ISettingsProvider
+    public class AppSettingsSettingsProvider : ISettingsProvider
     {
-        public string ApplicationName
-        {
-            get
-            {
-                return ConfigurationManager.AppSettings["SettingsProvider:ApplicationName"];
-            }
-        }
-
-        public string EnvironmentName
-        {
-            get
-            {
-                return ConfigurationManager.AppSettings["SettingsProvider:EnvironmentName"];
-            }
-        }
-
         public bool Contains(string key)
         {
             return ConfigurationManager.AppSettings[key] != null;
