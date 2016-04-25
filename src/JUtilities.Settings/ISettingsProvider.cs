@@ -2,10 +2,6 @@
 {
     public interface ISettingsProvider
     {
-        string ApplicationName { get; }
-
-        string EnvironmentName { get; }
-
         T Get<T>(string key);
 
         string Get(string key);
