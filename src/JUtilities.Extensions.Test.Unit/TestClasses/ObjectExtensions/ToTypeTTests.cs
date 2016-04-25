@@ -9,7 +9,7 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
     public class ToTypeTTests
     {
         [TestMethod]
-        public void ItShouldCastAsString()
+        public void ShouldCastAsString()
         {
             const string @object = "TestString";
 
@@ -17,7 +17,7 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
         }
 
         [TestMethod]
-        public void ItShouldCastAsInt()
+        public void ShouldCastAsInt()
         {
             const int @object = 5;
 
@@ -25,7 +25,7 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
         }
 
         [TestMethod]
-        public void ItShouldCastAsIntFromString()
+        public void ShouldCastAsIntFromString()
         {
             const int @object = 5;
 
@@ -33,7 +33,7 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
         }
 
         [TestMethod]
-        public void ItShouldCastAsEnum()
+        public void ShouldCastAsEnum()
         {
             const MockEnum @object = MockEnum.Value1;
 
@@ -41,7 +41,7 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
         }
 
         [TestMethod]
-        public void ItShouldCastAsEnumFromString()
+        public void ShouldCastAsEnumFromString()
         {
             const MockEnum @object = MockEnum.Value1;
 
@@ -49,7 +49,7 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
         }
 
         [TestMethod]
-        public void ItShouldCastAsEnumFromInt()
+        public void ShouldCastAsEnumFromInt()
         {
             const MockEnum @object = MockEnum.Value1;
 
@@ -57,7 +57,7 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
         }
 
         [TestMethod]
-        public void ItShouldCastAsEnumFromIntAsString()
+        public void ShouldCastAsEnumFromIntAsString()
         {
             const MockEnum @object = MockEnum.Value1;
 
@@ -65,7 +65,7 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
         }
 
         [TestMethod]
-        public void ItShouldCastAsDecimal()
+        public void ShouldCastAsDecimal()
         {
             const decimal @object = 3.14m;
 
@@ -73,7 +73,7 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
         }
 
         [TestMethod]
-        public void ItShouldCastAsDecimalFromString()
+        public void ShouldCastAsDecimalFromString()
         {
             const decimal @object = 3.14m;
 
@@ -81,7 +81,7 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
         }
 
         [TestMethod]
-        public void ItShouldCastAsDouble()
+        public void ShouldCastAsDouble()
         {
             const double @object = 3.14D;
 
@@ -89,7 +89,7 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
         }
 
         [TestMethod]
-        public void ItShouldCastAsDoubleFromString()
+        public void ShouldCastAsDoubleFromString()
         {
             const double @object = 3.14D;
 
@@ -97,7 +97,7 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
         }
 
         [TestMethod]
-        public void ItShouldCastAsFloat()
+        public void ShouldCastAsFloat()
         {
             const float @object = 3.14F;
 
@@ -105,7 +105,7 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
         }
 
         [TestMethod]
-        public void ItShouldCastAsFloatFromString()
+        public void ShouldCastAsFloatFromString()
         {
             const string @object = "3.14";
 
@@ -113,7 +113,7 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
         }
 
         [TestMethod]
-        public void ItShouldCastAsBool()
+        public void ShouldCastAsBool()
         {
             const bool @object = true;
 
@@ -121,7 +121,7 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
         }
 
         [TestMethod]
-        public void ItShouldCastAsBoolFromString()
+        public void ShouldCastAsBoolFromString()
         {
             const bool @object = true;
 
@@ -129,7 +129,7 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
         }
 
         [TestMethod]
-        public void ItShouldCastAsGuid()
+        public void ShouldCastAsGuid()
         {
             var @object = Guid.NewGuid();
 
@@ -137,7 +137,7 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
         }
 
         [TestMethod]
-        public void ItShouldCastAsGuidFromString()
+        public void ShouldCastAsGuidFromString()
         {
             var @object = Guid.NewGuid();
 
@@ -145,7 +145,7 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
         }
 
         [TestMethod]
-        public void ItShouldThrowExceptionOnInvalidCast()
+        public void ShouldThrowExceptionOnInvalidCast()
         {
             const string @object = "TestString";
 
@@ -162,7 +162,7 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
         }
 
         [TestMethod]
-        public void ItShouldThrowExceptionIfNull()
+        public void ShouldThrowExceptionIfNull()
         {
             const object @object = null;
 
@@ -179,7 +179,7 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
         }
 
         [TestMethod]
-        public void ItShouldThrowExceptionIfNullableType()
+        public void ShouldThrowExceptionIfNullableType()
         {
             const string @object = "TestString";
 

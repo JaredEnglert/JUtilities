@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace JUtilities.Extensions
 {
@@ -24,7 +26,24 @@ namespace JUtilities.Extensions
                 throw new Exception(string.Format("Supplied value could not be converted to type {0}", typeOfT.Name), exception);
             }
         }
-        
+
+        public static byte[] SerializeToByteArray(this object @object)
+        {
+            if (@object == null) throw new ArgumentException("Null is not convertable.");
+
+            var memoryStream = new MemoryStream();
+            var binaryFormatter = new BinaryFormatter();
+
+            binaryFormatter.Serialize(memoryStream, @object);
+
+            return memoryStream.ToArray();
+        }
+
+        public static void ToFile(this object @object, string filePath)
+        {
+            @object.SerializeToByteArray().ToFile(filePath);
+        }
+
         private static T CastToEnum<T>(Type type, object @object)
         {
             int enumAsInt;
