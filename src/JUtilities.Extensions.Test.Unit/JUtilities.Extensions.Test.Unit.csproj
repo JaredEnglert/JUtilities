@@ -61,6 +61,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Mocks\MockEnum.cs" />
+    <Compile Include="TestClasses\ObjectExtensions\ToFileTests.cs" />
     <Compile Include="TestClasses\ObjectExtensions\ToTypeTTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestClasses\TypeExtensions\ImplementsInterfaceTests.cs" />
