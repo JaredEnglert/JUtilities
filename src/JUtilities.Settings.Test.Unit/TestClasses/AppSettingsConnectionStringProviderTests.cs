@@ -16,16 +16,9 @@ namespace JUtilities.Settings.Test.Unit.TestClasses
         [TestMethod]
         public void ShouldThrowExceptionIfConnectionStringIsMissing()
         {
-            try
-            {
-                new AppSettingsConnectionStringProvider().Get("BadTestConnectionString");
+            Action action = () => new AppSettingsConnectionStringProvider().Get("BadTestConnectionString");
 
-                Assert.Fail();
-            }
-            catch (Exception exception)
-            {
-                exception.Should().NotBeNull();
-            }
+            action.ShouldThrow<Exception>();
         }
     }
 }
