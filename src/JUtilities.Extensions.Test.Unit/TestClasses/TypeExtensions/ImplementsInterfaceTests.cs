@@ -22,16 +22,9 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.TypeExtensions
         [TestMethod]
         public void ShouldThowExceptionWhenTIsNotAnInterface()
         {
-            try
-            {
-                typeof(int).ImplementsInterface<int>();
+            Action action = () => typeof(int).ImplementsInterface<int>();
 
-                Assert.Fail();
-            }
-            catch (Exception exception)
-            {
-                exception.Should().NotBeNull();
-            }
+            action.ShouldThrow<Exception>();
         }
 
         private interface TestInterface

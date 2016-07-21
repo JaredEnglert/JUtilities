@@ -148,51 +148,27 @@ namespace JUtilities.Extensions.Test.Unit.TestClasses.ObjectExtensions
         public void ShouldThrowExceptionOnInvalidCast()
         {
             const string @object = "TestString";
+            Action action = () => @object.ToType<int>();
 
-            try
-            {
-                @object.ToType<int>();
-
-                Assert.Fail();
-            }
-            catch (Exception exception)
-            {
-                exception.Should().NotBeNull();
-            }
+            action.ShouldThrow<Exception>();
         }
 
         [TestMethod]
         public void ShouldThrowExceptionIfNull()
         {
             const object @object = null;
+            Action action = () => @object.ToType<int>();
 
-            try
-            {
-                @object.ToType<int>();
-
-                Assert.Fail();
-            }
-            catch (Exception exception)
-            {
-                exception.Should().NotBeNull();
-            }
+            action.ShouldThrow<Exception>();
         }
 
         [TestMethod]
         public void ShouldThrowExceptionIfNullableType()
         {
             const string @object = "TestString";
+            Action action = () => @object.ToType<int?>();
 
-            try
-            {
-                @object.ToType<int?>();
-
-                Assert.Fail();
-            }
-            catch (Exception exception)
-            {
-                exception.Should().NotBeNull();
-            }
+            action.ShouldThrow<Exception>();
         }
     }
 }

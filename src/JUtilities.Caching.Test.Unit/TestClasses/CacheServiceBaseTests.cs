@@ -24,17 +24,10 @@ namespace JUtilities.Caching.Test.Unit.TestClasses
         [TestMethod]
         public void ShouldThrowExceptionWhenNotCached()
         {
-            try
-            {
-                var cacheService = new MockCacheService();
-                cacheService.Get<string>(Key);
+            var cacheService = new MockCacheService();
+            Action action = () => cacheService.Get<string>(Key);
 
-                Assert.Fail();
-            }
-            catch (Exception exception)
-            {
-                exception.Should().NotBeNull();
-            }
+            action.ShouldThrow<Exception>();
         }
     }
 }

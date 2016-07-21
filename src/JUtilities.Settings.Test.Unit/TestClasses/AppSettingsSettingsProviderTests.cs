@@ -16,16 +16,9 @@ namespace JUtilities.Settings.Test.Unit.TestClasses
         [TestMethod]
         public void ShouldThrowExceptionWhenSettingDoesNotExist()
         {
-            try
-            {
-                new AppSettingsSettingsProvider().Get<int>("BadKey");
+            Action action = () => new AppSettingsSettingsProvider().Get<int>("BadKey");
 
-                Assert.Fail();
-            }
-            catch (Exception exception)
-            {
-                exception.Should().NotBeNull();
-            }
+            action.ShouldThrow<Exception>();
         }
 
         [TestMethod]
