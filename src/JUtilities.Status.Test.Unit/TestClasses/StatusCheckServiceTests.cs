@@ -10,71 +10,94 @@ namespace JUtilities.Status.Test.Unit.TestClasses
     [TestClass]
     public class StatusCheckServiceTests
     {
+        private StatusCheckService _statusCheckService;
+
+        public StatusCheckServiceTests()
+        {
+            var settingsProvider = new AppSettingsSettingsProvider();
+            var connectionStringProvider = new AppSettingsConnectionStringProvider();
+
+            _statusCheckService = new StatusCheckService(settingsProvider, new IStatusCheck[] {
+                new GoodStatusCheck(),
+                new BadStatusCheck(),
+                new TimeoutStatusCheck(),
+                new DatabaseStatusCheck(connectionStringProvider)
+            });
+        }
+
         [TestMethod]
         public void ShouldReturnTrueForValidStatus()
         {
-            GetStatusCheckService(new GoodStatusCheck()).GetStatus(typeof(GoodStatusCheck)).IsActive.Should().BeTrue();
+            _statusCheckService.GetStatus(typeof(GoodStatusCheck)).IsActive.Should().BeTrue();
         }
 
         [TestMethod]
         public void ShouldReturnFalseForInvalidStatus()
         {
-            GetStatusCheckService(new BadStatusCheck()).GetStatus(typeof(BadStatusCheck)).IsActive.Should().BeFalse();
+            _statusCheckService.GetStatus(typeof(BadStatusCheck)).IsActive.Should().BeFalse();
         }
 
         [TestMethod]
         public void ShouldReturnExceptionForInvalidStatus()
         {
-            GetStatusCheckService(new BadStatusCheck()).GetStatus(typeof(BadStatusCheck)).Exception.Should().NotBeNull();
+            _statusCheckService.GetStatus(typeof(BadStatusCheck)).Exception.Should().NotBeNull();
         }
 
         [TestMethod]
         public void ShouldReturnNullWhenDoesNotExist()
         {
-            GetStatusCheckService().GetStatus(typeof(BadStatusCheck)).Should().BeNull();
+            _statusCheckService.GetStatus(typeof(UnusedStatusCheck)).Should().BeNull();
         }
 
         [TestMethod]
         public void ShouldReturnAllStatuses()
         {
-            GetStatusCheckService(new GoodStatusCheck(), new BadStatusCheck(), new TimeoutStatusCheck()).GetStatuses().Count().ShouldBeEquivalentTo(3);
+            _statusCheckService.GetStatuses().Count().ShouldBeEquivalentTo(4);
         }
 
         [TestMethod]
         public void ShouldReturnTheCorrectStatus()
         {
-            var statusCheckService = GetStatusCheckService(new BadStatusCheck(), new GoodStatusCheck());
-
-            statusCheckService.GetStatus(typeof(GoodStatusCheck)).IsActive.Should().BeTrue();
-            statusCheckService.GetStatus(typeof(BadStatusCheck)).IsActive.Should().BeFalse();
+            _statusCheckService.GetStatus(typeof(GoodStatusCheck)).IsActive.Should().BeTrue();
+            _statusCheckService.GetStatus(typeof(BadStatusCheck)).IsActive.Should().BeFalse();
         }
 
         [TestMethod]
         public void ShouldReturnFalseWhenTimeoutIsHit()
         {
-            GetStatusCheckService(new TimeoutStatusCheck()).GetStatus(typeof(TimeoutStatusCheck)).IsActive.Should().BeFalse();
+            _statusCheckService.GetStatus(typeof(TimeoutStatusCheck)).IsActive.Should().BeFalse();
         }
 
         [TestMethod]
         public void ShouldUpdateLastUpdatedUtc()
         {
-            var statusCheckService = GetStatusCheckService(new GoodStatusCheck());
-            var initialLastUpdatedUtc = statusCheckService.LastUpdatedUtc;
+            var initialLastUpdatedUtc = _statusCheckService.LastUpdatedUtc;
 
-            Thread.Sleep(statusCheckService.PollIncrement + 1000);
+            _statusCheckService.ForceUpdate();
 
-            statusCheckService.LastUpdatedUtc.Should().BeAfter(initialLastUpdatedUtc);
+            _statusCheckService.LastUpdatedUtc.Should().BeAfter(initialLastUpdatedUtc);
         }
 
         [TestMethod]
         public void ShouldUpdateLastUpdatedUtcOnStatus()
         {
-            var statusCheckService = GetStatusCheckService(new GoodStatusCheck());
-            var initialLastUpdatedUtc = statusCheckService.GetStatus(typeof(GoodStatusCheck)).LastUpdatedUtc;
+            var initialLastUpdatedUtc = _statusCheckService.GetStatus(typeof(GoodStatusCheck)).LastUpdatedUtc;
 
-            Thread.Sleep(statusCheckService.PollIncrement + 3000);
+            _statusCheckService.ForceUpdate();
 
-            statusCheckService.GetStatus(typeof(GoodStatusCheck)).LastUpdatedUtc.Should().BeAfter(initialLastUpdatedUtc);
+            _statusCheckService.GetStatus(typeof(GoodStatusCheck)).LastUpdatedUtc.Should().BeAfter(initialLastUpdatedUtc);
+        }
+
+        [TestMethod]
+        public void ShouldContinueToPollAfterForceUpdate()
+        {
+            _statusCheckService.ForceUpdate();
+
+            var initialLastUpdatedUtc = _statusCheckService.GetStatus(typeof(GoodStatusCheck)).LastUpdatedUtc;
+
+            Thread.Sleep(_statusCheckService.PollIncrement + _statusCheckService.TimeoutLimit + 2000);
+
+            _statusCheckService.GetStatus(typeof(GoodStatusCheck)).LastUpdatedUtc.Should().BeAfter(initialLastUpdatedUtc);
         }
 
         [TestMethod]
@@ -82,14 +105,7 @@ namespace JUtilities.Status.Test.Unit.TestClasses
         {
             var connectionStringProvider = new AppSettingsConnectionStringProvider();
 
-            GetStatusCheckService(new DatabaseStatusCheck(connectionStringProvider)).GetStatus(typeof(DatabaseStatusCheck)).IsActive.Should().BeFalse();
-        }
-
-        private StatusCheckService GetStatusCheckService(params IStatusCheck[] statusChecks)
-        {
-            var settingsProvider = new AppSettingsSettingsProvider();
-
-            return new StatusCheckService(settingsProvider, statusChecks);
+            _statusCheckService.GetStatus(typeof(DatabaseStatusCheck)).IsActive.Should().BeFalse();
         }
     }
 }

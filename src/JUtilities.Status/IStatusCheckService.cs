@@ -9,8 +9,12 @@ namespace JUtilities.Status
 
         int PollIncrement { get; }
 
+        int TimeoutLimit { get; }
+
         Status GetStatus(Type statusCheckType);
 
         IEnumerable<Status> GetStatuses();
+
+        void ForceUpdate();
     }
 }
