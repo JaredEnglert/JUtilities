@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using JUtilities.Settings;
 
@@ -19,11 +20,21 @@ namespace JUtilities.Status
             }
         }
 
+        public int TimeoutLimit
+        {
+            get
+            {
+                return _settingsProvider.Get<int>("StatusCheck:TimeoutLimitInSeconds") * 1000;
+            }
+        }
+
         private readonly ConcurrentDictionary<Type, Status> _statuses = new ConcurrentDictionary<Type, Status>();
 
         private readonly ISettingsProvider _settingsProvider;
 
         private readonly IEnumerable<IStatusCheck> _statusChecks;
+
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         public StatusCheckService(ISettingsProvider settingsProvider, IEnumerable<IStatusCheck> statusChecks)
         {
@@ -59,12 +70,10 @@ namespace JUtilities.Status
 
                 try
                 {
-                    var timeout = _settingsProvider.Get<int>("StatusCheck:TimeoutLimitInMilliseconds");
-
-                    if (!Task.Run(() => status.IsActive = statusCheck.IsActive()).Wait(timeout))
+                    if (!Task.Run(() => status.IsActive = statusCheck.IsActive()).Wait(TimeoutLimit))
                     {
                         status.IsActive = false;
-                        status.Exception = new TimeoutException(string.Format("Testing the status took longer than {0} seconds.", timeout / 1000));
+                        status.Exception = new TimeoutException(string.Format("Testing the status took longer than {0} seconds.", TimeoutLimit / 1000));
                     }
                 }
                 catch (Exception exception)
@@ -81,6 +90,12 @@ namespace JUtilities.Status
             LastUpdatedUtc = DateTime.UtcNow;
         }
 
+        public void ForceUpdate()
+        {
+            _cancellationTokenSource.Cancel();
+            Poll();
+        }
+
         private void Poll()
         {
             try
@@ -89,7 +104,7 @@ namespace JUtilities.Status
             }
             finally
             {
-                Task.Delay(PollIncrement).ContinueWith(a => Task.Run(() => Poll()));
+                Task.Delay(PollIncrement, _cancellationTokenSource.Token).ContinueWith(a => Task.Run(() => Poll()), _cancellationTokenSource.Token);
             }
         }
     }
