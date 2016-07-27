@@ -66,7 +66,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="Mocks\MockEnum.cs" />
+    <Compile Include="TestClasses\EnumExtensions\ToDescriptionTests.cs" />
     <Compile Include="TestClasses\ExceptionExtensions\ToJsonTests.cs" />
     <Compile Include="TestClasses\ObjectExtensions\ToFileTests.cs" />
     <Compile Include="TestClasses\ObjectExtensions\ToTypeTTests.cs" />

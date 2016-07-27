@@ -1,7 +1,6 @@
 ﻿using System;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Utilitarian.Extensions.Test.Unit.Mocks;
 
 namespace Utilitarian.Extensions.Test.Unit.TestClasses.ObjectExtensions
 {
@@ -169,6 +168,13 @@ namespace Utilitarian.Extensions.Test.Unit.TestClasses.ObjectExtensions
             Action action = () => @object.ToType<int?>();
 
             action.ShouldThrow<Exception>();
+        }
+
+        private enum MockEnum
+        {
+            Value1 = 1,
+
+            Value2 = 2
         }
     }
 }
