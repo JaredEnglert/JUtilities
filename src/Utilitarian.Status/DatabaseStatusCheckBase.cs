@@ -10,7 +10,7 @@ namespace Utilitarian.Status
 
         private readonly IConnectionStringProvider _connectionStringProvider;
 
-        public DatabaseStatusCheckBase(IConnectionStringProvider connectionStringProvider)
+        protected DatabaseStatusCheckBase(IConnectionStringProvider connectionStringProvider)
         {
             _connectionStringProvider = connectionStringProvider;
         }

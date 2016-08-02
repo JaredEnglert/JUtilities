@@ -8,7 +8,7 @@ namespace Utilitarian.Extensions
         {
             var interfaceType = typeof(T);
 
-            if (!interfaceType.IsInterface) throw new Exception(string.Format("Type \"{0}\" is not an interface", interfaceType.Name));
+            if (!interfaceType.IsInterface) throw new Exception($"Type \"{interfaceType.Name}\" is not an interface");
 
             return interfaceType.IsAssignableFrom(type);
         }

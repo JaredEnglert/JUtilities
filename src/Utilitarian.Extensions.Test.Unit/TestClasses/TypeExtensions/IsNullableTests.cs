@@ -10,13 +10,13 @@ namespace Utilitarian.Extensions.Test.Unit.TestClasses.TypeExtensions
         [TestMethod]
         public void ShouldBeTrueWhenNullable()
         {
-            (typeof (DateTime?)).IsNullable().Should().BeTrue();
+            typeof (DateTime?).IsNullable().Should().BeTrue();
         }
 
         [TestMethod]
         public void ShouldBeFalseWhenNotNullable()
         {
-            (typeof(DateTime)).GetType().IsNullable().Should().BeFalse();
+            typeof(DateTime).IsNullable().Should().BeFalse();
         }
     }
 }

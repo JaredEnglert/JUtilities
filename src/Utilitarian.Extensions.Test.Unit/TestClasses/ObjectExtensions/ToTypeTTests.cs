@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Globalization;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Utilitarian.Extensions.Test.Unit.Mocks;
 
 namespace Utilitarian.Extensions.Test.Unit.TestClasses.ObjectExtensions
 {
@@ -77,7 +77,7 @@ namespace Utilitarian.Extensions.Test.Unit.TestClasses.ObjectExtensions
         {
             const decimal @object = 3.14m;
 
-            @object.ToString().ToType<decimal>().ShouldBeEquivalentTo(@object);
+            @object.ToString(CultureInfo.InvariantCulture).ToType<decimal>().ShouldBeEquivalentTo(@object);
         }
 
         [TestMethod]
@@ -93,7 +93,7 @@ namespace Utilitarian.Extensions.Test.Unit.TestClasses.ObjectExtensions
         {
             const double @object = 3.14D;
 
-            @object.ToString().ToType<double>().ShouldBeEquivalentTo(@object);
+            @object.ToString(CultureInfo.InvariantCulture).ToType<double>().ShouldBeEquivalentTo(@object);
         }
 
         [TestMethod]
@@ -109,7 +109,8 @@ namespace Utilitarian.Extensions.Test.Unit.TestClasses.ObjectExtensions
         {
             const string @object = "3.14";
 
-            @object.ToString().ToType<float>().ToString().ShouldBeEquivalentTo(@object);
+            // ReSharper disable once RedundantToStringCall
+            @object.ToString().ToType<float>().ToString(CultureInfo.InvariantCulture).ShouldBeEquivalentTo(@object);
         }
 
         [TestMethod]
@@ -169,6 +170,14 @@ namespace Utilitarian.Extensions.Test.Unit.TestClasses.ObjectExtensions
             Action action = () => @object.ToType<int?>();
 
             action.ShouldThrow<Exception>();
+        }
+
+        private enum MockEnum
+        {
+            Value1 = 1,
+
+            // ReSharper disable once UnusedMember.Local
+            Value2 = 2
         }
     }
 }

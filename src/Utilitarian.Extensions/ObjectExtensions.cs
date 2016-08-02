@@ -23,7 +23,7 @@ namespace Utilitarian.Extensions
             }
             catch (Exception exception)
             {
-                throw new Exception(string.Format("Supplied value could not be converted to type {0}", typeOfT.Name), exception);
+                throw new Exception($"Supplied value could not be converted to type {typeOfT.Name}", exception);
             }
         }
 

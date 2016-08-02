@@ -4,12 +4,6 @@ namespace Utilitarian.Settings
 {
     public class AppSettingsApplicationProvider: IApplicationProvider
     {
-        public string ApplicationName
-        {
-            get
-            {
-                return ConfigurationManager.AppSettings["ApplicationProvider:ApplicationName"];
-            }
-        }
+        public string ApplicationName => ConfigurationManager.AppSettings["ApplicationProvider:ApplicationName"];
     }
 }

@@ -10,7 +10,7 @@ namespace Utilitarian.Status.Test.Unit.TestClasses
     [TestClass]
     public class StatusCheckServiceTests
     {
-        private StatusCheckService _statusCheckService;
+        private readonly StatusCheckService _statusCheckService;
 
         public StatusCheckServiceTests()
         {
@@ -103,8 +103,6 @@ namespace Utilitarian.Status.Test.Unit.TestClasses
         [TestMethod]
         public void ShouldReturnFalseWhenDatabaseDoesNotExist()
         {
-            var connectionStringProvider = new AppSettingsConnectionStringProvider();
-
             _statusCheckService.GetStatus(typeof(DatabaseStatusCheck)).IsActive.Should().BeFalse();
         }
     }

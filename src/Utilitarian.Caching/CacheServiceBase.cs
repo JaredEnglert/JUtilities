@@ -8,7 +8,7 @@ namespace Utilitarian.Caching
         {
             T value;
 
-            if (!TryGet(key, out value)) throw new Exception(string.Format("Value for key \"{0}\" could not be found in the {1}", key, GetType().Name));
+            if (!TryGet(key, out value)) throw new Exception($"Value for key \"{key}\" could not be found in the {GetType().Name}");
 
             return value;
         }

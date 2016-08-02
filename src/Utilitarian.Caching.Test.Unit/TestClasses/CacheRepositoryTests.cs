@@ -27,7 +27,7 @@ namespace Utilitarian.Caching.Test.Unit.TestClasses
             var store = new Store();
             using (var cacheRepository = GetCacheRepository())
             {
-                var value = cacheRepository.Get(Key, store.GetString);
+                cacheRepository.Get(Key, store.GetString);
                 cacheRepository.Get(Key, store.GetString);
                 cacheRepository.Get(Key, store.GetString);
 
@@ -47,14 +47,14 @@ namespace Utilitarian.Caching.Test.Unit.TestClasses
             }
         }
 
-        private CacheRepository GetCacheRepository()
+        private static CacheRepository GetCacheRepository()
         {
             return new CacheRepository(new MockCacheService());
         }
 
         private class Store
         {
-            public int TimesCalled { get; set; }
+            public int TimesCalled { get; private set; }
 
             public Store()
             {

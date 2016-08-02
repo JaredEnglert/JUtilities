@@ -6,13 +6,13 @@ namespace Utilitarian.Caching.Test.Unit.Mocks
 {
     public class MockCacheService : CacheServiceBase, ICacheService
     {
-        private readonly Guid Id;
+        private readonly Guid _id;
 
         private readonly ConcurrentDictionary<string, MockCacheItem> _cache;
 
         public MockCacheService()
         {
-            Id = Guid.NewGuid();
+            _id = Guid.NewGuid();
             _cache = new ConcurrentDictionary<string, MockCacheItem>();
         }
 
@@ -65,24 +65,24 @@ namespace Utilitarian.Caching.Test.Unit.Mocks
 
         private string TransformKey(string key)
         {
-            return string.Format("{0}:{1}", Id, key);
+            return $"{_id}:{key}";
         }
 
         private class MockCacheItem : CacheItem
         {
-            public DateTime Expiration { get; set; }
+            public DateTime Expiration { get; private set; }
 
-            private static readonly TimeSpan _defaultExpiuration = new TimeSpan(0, 5, 0);
+            private static readonly TimeSpan DefaultExpiration = new TimeSpan(0, 5, 0);
 
             public MockCacheItem(object @object, bool isSingleUse = false, bool rollExpirationOnAccess = true, TimeSpan? initialDuration = default(TimeSpan?)) 
-                : base(@object, isSingleUse, rollExpirationOnAccess, initialDuration ?? _defaultExpiuration)
+                : base(@object, isSingleUse, rollExpirationOnAccess, initialDuration ?? DefaultExpiration)
             {
-                Expiration = DateTime.Now.Add(initialDuration ?? _defaultExpiuration);
+                Expiration = DateTime.Now.Add(initialDuration ?? DefaultExpiration);
             }
 
             internal void UpdateExpiration()
             {
-                Expiration = DateTime.Now.Add(InitialDuration ?? _defaultExpiuration);
+                Expiration = DateTime.Now.Add(InitialDuration ?? DefaultExpiration);
             }
         }
     }
