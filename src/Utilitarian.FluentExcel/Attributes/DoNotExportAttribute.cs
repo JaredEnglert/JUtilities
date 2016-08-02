@@ -3,9 +3,9 @@
 namespace Utilitarian.FluentExcel.Attributes
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class DoNotExportAttribute : Attribute, IExportAttribute
+    public class DoNotExportAttribute : ExportAttributeBase
     {
-        public bool ShouldExport(object collection)
+        public override bool ShouldExport(object collection)
         {
             return false;
         }

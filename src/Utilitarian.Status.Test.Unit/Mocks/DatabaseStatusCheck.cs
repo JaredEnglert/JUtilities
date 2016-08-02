@@ -9,9 +9,6 @@ namespace Utilitarian.Status.Test.Unit.Mocks
         {
         }
 
-        protected override string ConnectionStringName
-        {
-            get { return "TestConnectionString"; }
-        }
+        protected override string ConnectionStringName => "TestConnectionString";
     }
 }

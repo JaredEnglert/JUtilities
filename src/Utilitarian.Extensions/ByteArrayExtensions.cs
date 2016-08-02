@@ -8,6 +8,7 @@ namespace Utilitarian.Extensions
         {
             var fileInfo = new FileInfo(filePath);
 
+            // ReSharper disable once PossibleNullReferenceException
             if (!fileInfo.Directory.Exists)
             {
                 Directory.CreateDirectory(fileInfo.Directory.FullName);

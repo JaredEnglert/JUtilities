@@ -36,45 +36,21 @@ namespace Utilitarian.FluentExcel
 
         private static class ExcelStyleDefaults
         {
-            public static Color HeaderRowColor
-            {
-                get { return Color.DarkSlateBlue; }
-            }
+            public static Color HeaderRowColor => Color.MediumSeaGreen;
 
-            public static Color HeaderFontColor
-            {
-                get { return Color.White; }
-            }
+            public static Color HeaderFontColor => Color.White;
 
-            public static Color DataFontColor
-            {
-                get { return Color.Black; }
-            }
+            public static Color DataFontColor => Color.Black;
 
-            public static Color TotalsRowColor
-            {
-                get { return Color.LightGray; }
-            }
+            public static Color TotalsRowColor => Color.MediumSeaGreen;
 
-            public static Color TotalsFontColor
-            {
-                get { return Color.Black; }
-            }
+            public static Color TotalsFontColor => Color.Black;
 
-            public static short HeaderFontSize
-            {
-                get { return 12; }
-            }
+            public static short HeaderFontSize => 12;
 
-            public static short DataFontSize
-            {
-                get { return 11; }
-            }
+            public static short DataFontSize => 11;
 
-            public static short TotalsFontSize
-            {
-                get { return 12; }
-            }
+            public static short TotalsFontSize => 12;
         }
     }
 }

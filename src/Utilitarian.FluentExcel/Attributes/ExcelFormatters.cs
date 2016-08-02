@@ -27,7 +27,7 @@ namespace Utilitarian.FluentExcel.Attributes
     /// mso-number-format:"\#\,\#\#0\.00_ \;\[Red\]\-\#\,\#\#0\.00\"
     /// 2 decimals, negative numbers in red and signed (1.56 -1.56)
     /// </remarks>
-    public enum FileFormatters
+    public enum ExcelFormatters
     {
         /// <summary>Formats the column as a number with no decimal places.</summary>
         [Description(@"#,##0")]

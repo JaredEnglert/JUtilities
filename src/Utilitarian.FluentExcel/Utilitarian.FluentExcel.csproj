@@ -61,20 +61,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\ExportAttributeBase.cs" />
     <Compile Include="Attributes\FormulaAttribute.cs" />
     <Compile Include="Attributes\ConditionalExportAttribute.cs" />
     <Compile Include="Attributes\CustomAttributeDataExtensions.cs" />
     <Compile Include="Attributes\DoNotExportAttribute.cs" />
-    <Compile Include="Attributes\FileFormatters.cs" />
-    <Compile Include="Attributes\FormatStringAttribute.cs" />
-    <Compile Include="Attributes\IExportAttribute.cs" />
+    <Compile Include="Attributes\ExcelFormatters.cs" />
+    <Compile Include="Attributes\FormatAttribute.cs" />
     <Compile Include="Attributes\IExportCondition.cs" />
     <Compile Include="Attributes\FormulaType.cs" />
-    <Compile Include="ExcelService.cs" />
     <Compile Include="NpoiWorkbook.cs" />
     <Compile Include="StylingOptions.cs" />
-    <Compile Include="IEnumerableExtensions.cs" />
-    <Compile Include="IExcelService.cs" />
+    <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

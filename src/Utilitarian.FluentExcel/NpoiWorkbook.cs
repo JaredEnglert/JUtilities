@@ -25,8 +25,8 @@ namespace Utilitarian.FluentExcel
         {
             GetXlColor(_hssfWorkbook, Color.Azure);
 
-            if (collection == null) throw new ArgumentNullException("collection");
-            if (string.IsNullOrWhiteSpace(workSheetName)) throw new ArgumentNullException("sheetName");
+            if (collection == null) throw new ArgumentNullException(nameof(collection));
+            if (string.IsNullOrWhiteSpace(workSheetName)) throw new ArgumentNullException(nameof(workSheetName));
 
             if (stylingOptions == null) stylingOptions = new StylingOptions();
 
@@ -35,8 +35,8 @@ namespace Utilitarian.FluentExcel
             var type = typeof(T);
             var properties = type.GetProperties()
                 .Where(p => p.CustomAttributes.All(a =>
-                    !a.AttributeType.GetInterfaces().Contains(typeof(IExportAttribute))
-                    || a.CreateInstance<IExportAttribute>().ShouldExport(collection))
+                    !a.AttributeType.GetInterfaces().Contains(typeof(ExportAttributeBase))
+                    || a.CreateInstance<ExportAttributeBase>().ShouldExport(collection))
                 ).ToList();
 
             var worksheet = _hssfWorkbook.CreateSheet(workSheetName);
@@ -82,8 +82,8 @@ namespace Utilitarian.FluentExcel
                 headerRow.CreateCell(columnIndex).SetCellValue(displayNameAttribute == null ? properties[columnIndex].Name : displayNameAttribute.DisplayName);
                 headerRow.Cells[columnIndex].CellStyle = headerCellStyle;
 
-                var formatStringAttribute = Attribute.GetCustomAttribute(type.GetProperty(properties[columnIndex].Name), typeof(FormatStringAttribute)) as FormatStringAttribute;
-                var format = GetFormatId(workbook, formatStringAttribute);
+                var formatAttribute = Attribute.GetCustomAttribute(type.GetProperty(properties[columnIndex].Name), typeof(FormatAttribute)) as FormatAttribute;
+                var format = GetFormatId(workbook, formatAttribute);
                 columnFormatters.Add(columnIndex, format);
 
                 var totalsAttribute = Attribute.GetCustomAttribute(type.GetProperty(properties[columnIndex].Name), typeof(FormulaAttribute)) as FormulaAttribute;
@@ -195,15 +195,15 @@ namespace Utilitarian.FluentExcel
             }
         }
 
-        private static short GetFormatId(IWorkbook workbook, FormatStringAttribute formatStringAttribute)
+        private static short GetFormatId(IWorkbook workbook, FormatAttribute formatAttribute)
         {
-            if (formatStringAttribute == null) return 0;
+            if (formatAttribute == null) return 0;
 
-            var formatId = HSSFDataFormat.GetBuiltinFormat(formatStringAttribute.FormatString);
+            var formatId = HSSFDataFormat.GetBuiltinFormat(formatAttribute.FormatString);
 
             if (formatId != -1) return formatId;
 
-            return workbook.CreateDataFormat().GetFormat(formatStringAttribute.FormatString);
+            return workbook.CreateDataFormat().GetFormat(formatAttribute.FormatString);
         }
 
         private static string GetCellFormula(FormulaType formulaType, int columnIndex, int rowCount)
@@ -215,7 +215,7 @@ namespace Utilitarian.FluentExcel
                 case FormulaType.Average:
                     return string.Format("AVERAGE({0}2:{0}{1})", GetExcelColumnName(columnIndex), rowCount + 1);
                 default:
-                    throw new NotImplementedException(string.Format("There is no implementation for FormulaType \"{0}\"", formulaType));
+                    throw new NotImplementedException($"There is no implementation for FormulaType \"{formulaType}\"");
             }
         }
 
@@ -237,7 +237,7 @@ namespace Utilitarian.FluentExcel
         private static ICellStyle GetCellStyle(IWorkbook workbook, short format, short fontColorId, short fontSize, Dictionary<string, ICellStyle> styleCache,
             bool isBold = false, short? rowColorId = null, HorizontalAlignment? horizontalAlignment = null)
         {
-            var key = string.Format("{0}:{1}:{2}:{3}", format, isBold, rowColorId, horizontalAlignment);
+            var key = $"{format}:{isBold}:{rowColorId}:{horizontalAlignment}";
 
             if (styleCache.ContainsKey(key)) return styleCache[key];
 

@@ -10,13 +10,13 @@ namespace Utilitarian.Extensions.Test.Unit.TestClasses.TypeExtensions
         [TestMethod]
         public void ShouldBeTrueWhenImplemented()
         {
-            typeof(TestClass).ImplementsInterface<TestInterface>().Should().BeTrue();
+            typeof(TestClass).ImplementsInterface<ITestInterface>().Should().BeTrue();
         }
 
         [TestMethod]
         public void ShouldBeFalseWhenNotImplemented()
         {
-            typeof(int).ImplementsInterface<TestInterface>().Should().BeFalse();
+            typeof(int).ImplementsInterface<ITestInterface>().Should().BeFalse();
         }
 
         [TestMethod]
@@ -27,12 +27,12 @@ namespace Utilitarian.Extensions.Test.Unit.TestClasses.TypeExtensions
             action.ShouldThrow<Exception>();
         }
 
-        private interface TestInterface
+        private interface ITestInterface
         {
 
         }
 
-        private class TestClass : TestInterface
+        private class TestClass : ITestInterface
         {
 
         }

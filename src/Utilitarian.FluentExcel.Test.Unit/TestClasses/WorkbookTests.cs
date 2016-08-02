@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Utilitarian.FluentExcel.Attributes;
@@ -9,18 +10,18 @@ namespace Utilitarian.FluentExcel.Test.Unit.TestClasses
     [TestClass]
     public class WorkbookTests
     {
-        private const string _sheetName = "Test Sheet Name";
+        private const string SheetName = "Test Sheet Name";
 
         [TestMethod]
         public void ShouldTransform()
         {
-            CreateTestCollection().ToExcelWorkBook(_sheetName).Should().NotBeNull();
+            CreateTestCollection().ToExcelWorkBook(SheetName).Should().NotBeNull();
         }
 
         [TestMethod]
         public void ShouldTransformToMemoryStream()
         {
-            CreateTestCollection().ToExcelWorkBook(_sheetName).ToMemoryStream().Should().NotBeNull();
+            CreateTestCollection().ToExcelWorkBook(SheetName).ToMemoryStream().Should().NotBeNull();
         }
 
         private TestCollection<TestClass> CreateTestCollection(bool testCondition = true)
@@ -54,6 +55,7 @@ namespace Utilitarian.FluentExcel.Test.Unit.TestClasses
             return testCollection;
         }
         
+        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
         private class TestClass
         {
             public string Normal { get; set; }
@@ -69,10 +71,10 @@ namespace Utilitarian.FluentExcel.Test.Unit.TestClasses
             [Formula(FormulaType.Sum)]
             public float ConditionalSum { get; set; }
 
-            [FormatString(FileFormatters.NumberNoDecimal)]
+            [Format(ExcelFormatters.NumberNoDecimal)]
             public int NumberNoDecimal { get; set; }
 
-            [FormatString(FileFormatters.Currency)]
+            [Format(ExcelFormatters.Currency)]
             public float Money { get; set; }
 
             [DoNotExport]

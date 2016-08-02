@@ -6,12 +6,12 @@ namespace Utilitarian.Extensions.Test.Unit.TestClasses.EnumExtensions
     [TestClass]
     public class ToDescriptionTests
     {
-        private const string _description = "Test Description";
+        private const string Description = "Test Description";
 
         [TestMethod]
         public void ShouldReturnDescriptionAttributeWhenExists()
         {
-            TestEnum.Description.ToDescription().ShouldBeEquivalentTo(_description);
+            TestEnum.Description.ToDescription().ShouldBeEquivalentTo(Description);
         }
 
         [TestMethod]
@@ -22,7 +22,7 @@ namespace Utilitarian.Extensions.Test.Unit.TestClasses.EnumExtensions
 
         private enum TestEnum
         {
-            [System.ComponentModel.Description(_description)]
+            [System.ComponentModel.Description(ToDescriptionTests.Description)]
             Description = 1,
 
             NoDescription = 2

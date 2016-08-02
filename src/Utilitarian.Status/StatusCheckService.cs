@@ -12,21 +12,9 @@ namespace Utilitarian.Status
     {
         public DateTime LastUpdatedUtc { get; private set; }
 
-        public int PollIncrement
-        {
-            get
-            {
-                return _settingsProvider.Get<int>("StatusCheck:PollIncrementInSeconds") * 1000;
-            }
-        }
+        public int PollIncrement => _settingsProvider.Get<int>("StatusCheck:PollIncrementInSeconds") * 1000;
 
-        public int TimeoutLimit
-        {
-            get
-            {
-                return _settingsProvider.Get<int>("StatusCheck:TimeoutLimitInSeconds") * 1000;
-            }
-        }
+        public int TimeoutLimit => _settingsProvider.Get<int>("StatusCheck:TimeoutLimitInSeconds") * 1000;
 
         private readonly ConcurrentDictionary<Type, Status> _statuses = new ConcurrentDictionary<Type, Status>();
 
@@ -73,7 +61,7 @@ namespace Utilitarian.Status
                     if (!Task.Run(() => status.IsActive = statusCheck.IsActive()).Wait(TimeoutLimit))
                     {
                         status.IsActive = false;
-                        status.Exception = new TimeoutException(string.Format("Testing the status took longer than {0} seconds.", TimeoutLimit / 1000));
+                        status.Exception = new TimeoutException($"Testing the status took longer than {TimeoutLimit/1000} seconds.");
                     }
                 }
                 catch (Exception exception)

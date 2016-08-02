@@ -26,7 +26,7 @@ namespace Utilitarian.Extensions.Test.Unit.TestClasses.ObjectExtensions
         public void ShouldCreateDirectoryIfDoesNotExist()
         {
             var directory = Guid.NewGuid().ToString();
-            var filePath = string.Format("{0}\\{1}", directory, FilePath);
+            var filePath = $"{directory}\\{FilePath}";
 
             DeleteDirectoryIfExists(directory);
 

@@ -4,16 +4,16 @@ using Utilitarian.Extensions;
 namespace Utilitarian.FluentExcel.Attributes
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class FormatStringAttribute : Attribute
+    public class FormatAttribute : Attribute
     {
         public string FormatString { get; private set; }
 
-        public FormatStringAttribute(FileFormatters fileFormatter)
+        public FormatAttribute(ExcelFormatters excelFormatters)
         {
-            FormatString = fileFormatter.ToDescription();
+            FormatString = excelFormatters.ToDescription();
         }
 
-        public FormatStringAttribute(string formatString)
+        public FormatAttribute(string formatString)
         {
             FormatString = formatString;
         }

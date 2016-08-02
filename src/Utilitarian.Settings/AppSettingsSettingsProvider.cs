@@ -24,7 +24,7 @@ namespace Utilitarian.Settings
         {
             T value;
 
-            if (!TryGet(key, out value)) throw new Exception(string.Format("No value was found for key \"{0}\"", key));
+            if (!TryGet(key, out value)) throw new Exception($"No value was found for key \"{key}\"");
 
             return value;
         }

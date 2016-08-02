@@ -15,11 +15,11 @@ namespace Utilitarian.Caching
 
         private readonly TimeSpan _absoluteExpiration = new TimeSpan(24, 0, 0);
 
-        private MemoryCache memoryCache;
+        private MemoryCache _memoryCache;
         
         public LocalMemoryCacheService()
         {
-            memoryCache = MemoryCache.Default;
+            _memoryCache = MemoryCache.Default;
         }
 
         public LocalMemoryCacheService(string name, NameValueCollection config = null)
@@ -28,32 +28,32 @@ namespace Utilitarian.Caching
             _config = config;
             _useDefault = false;
 
-            memoryCache = new MemoryCache(name, config);
+            _memoryCache = new MemoryCache(name, config);
         }
 
         public void Set(string key, object value)
         {
-            memoryCache.Add(key, new CacheItem(value, initialDuration: _absoluteExpiration), DateTime.Now.Add(_absoluteExpiration));
+            _memoryCache.Add(key, new CacheItem(value, initialDuration: _absoluteExpiration), DateTime.Now.Add(_absoluteExpiration));
         }
 
         public void SetExpiring(string key, object value, TimeSpan expiration, bool rollExpirationOnAccess = false)
         {
-            memoryCache.Add(key, new CacheItem(value, rollExpirationOnAccess: rollExpirationOnAccess, initialDuration: expiration), DateTime.Now.Add(expiration));
+            _memoryCache.Add(key, new CacheItem(value, rollExpirationOnAccess: rollExpirationOnAccess, initialDuration: expiration), DateTime.Now.Add(expiration));
         }
 
         public void SetSingleUse(string key, object value)
         {
-            memoryCache.Add(key, new CacheItem(value, true, true), DateTime.Now.Add(new TimeSpan(24, 0, 0)));
+            _memoryCache.Add(key, new CacheItem(value, true), DateTime.Now.Add(new TimeSpan(24, 0, 0)));
         }
 
         public void SetSingleUseExpiring(string key, object value, TimeSpan expiration, bool rollExpirationOnAccess = false)
         {
-            memoryCache.Add(key, new CacheItem(value, true, rollExpirationOnAccess), DateTime.Now.Add(expiration));
+            _memoryCache.Add(key, new CacheItem(value, true, rollExpirationOnAccess), DateTime.Now.Add(expiration));
         }
 
         public override bool TryGet<T>(string key, out T value)
         {
-            var cacheItem = memoryCache.Get(key);
+            var cacheItem = _memoryCache.Get(key);
 
             if (cacheItem == null)
             {
@@ -64,8 +64,8 @@ namespace Utilitarian.Caching
 
             var castCacheItem = (CacheItem)cacheItem;
 
-            if (castCacheItem.IsSingleUse) memoryCache.Remove(key);
-            else if (castCacheItem.RollExpirationOnAccess && castCacheItem.InitialDuration.HasValue) memoryCache.Set(key, cacheItem, DateTime.Now.Add(castCacheItem.InitialDuration.Value));
+            if (castCacheItem.IsSingleUse) _memoryCache.Remove(key);
+            else if (castCacheItem.RollExpirationOnAccess && castCacheItem.InitialDuration.HasValue) _memoryCache.Set(key, cacheItem, DateTime.Now.Add(castCacheItem.InitialDuration.Value));
 
             value = castCacheItem.Object.ToType<T>();
 
@@ -74,12 +74,12 @@ namespace Utilitarian.Caching
 
         public void Clear()
         {
-            memoryCache.Dispose();
-            memoryCache = _useDefault ? MemoryCache.Default : new MemoryCache(_name, _config);
+            _memoryCache.Dispose();
+            _memoryCache = _useDefault ? MemoryCache.Default : new MemoryCache(_name, _config);
         }
         public void Dispose()
         {
-            if (memoryCache != null) memoryCache.Dispose();
+            _memoryCache?.Dispose();
         }
     }
 }

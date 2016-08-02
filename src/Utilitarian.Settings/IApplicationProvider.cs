@@ -1,6 +1,6 @@
 ﻿namespace Utilitarian.Settings
 {
-    public class IApplicationProvider
+    public interface IApplicationProvider
     {
         string ApplicationName { get; }
     }

@@ -27,10 +27,7 @@ namespace Utilitarian.FluentExcel.Attributes
                 else
                 {
                     var fieldInfo = namedArgument.MemberInfo as FieldInfo;
-                    if (fieldInfo != null)
-                    {
-                        fieldInfo.SetValue(attribute, value);
-                    }
+                    fieldInfo?.SetValue(attribute, value);
                 }
             }
 
@@ -51,9 +48,7 @@ namespace Utilitarian.FluentExcel.Attributes
                 : value;
         }
 
-        private static Array ConvertCustomAttributeTypedArgumentArray(
-            this IEnumerable<CustomAttributeTypedArgument> arguments,
-            Type elementType)
+        private static Array ConvertCustomAttributeTypedArgumentArray(this IEnumerable<CustomAttributeTypedArgument> arguments, Type elementType)
         {
             var valueArray = arguments.Select(x => x.Value).ToArray();
             var newArray = Array.CreateInstance(elementType, valueArray.Length);

@@ -7,7 +7,7 @@ namespace Utilitarian.Caching
     {
         private readonly ICacheService _cacheService;
 
-        private static readonly TimeSpan _defaultTimeSpan = new TimeSpan(0, 0, 15, 0);
+        private static readonly TimeSpan DefaultTimeSpan = new TimeSpan(0, 0, 15, 0);
 
         public CacheRepository(ICacheService cacheService)
         {
@@ -49,7 +49,7 @@ namespace Utilitarian.Caching
 
             value = getFromDataStore(arg1, arg2, arg3, arg4, arg5);
 
-            _cacheService.SetExpiring(key, value, expiration ?? _defaultTimeSpan, rollExpirationOnAccess);
+            _cacheService.SetExpiring(key, value, expiration ?? DefaultTimeSpan, rollExpirationOnAccess);
 
             return value;
         }

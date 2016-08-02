@@ -9,9 +9,9 @@ namespace Utilitarian.Settings
 
         public string Get(string key)
         {
-            var connectionString = ConfigurationManager.AppSettings[string.Format("{0}{1}", Prefix, key)];
+            var connectionString = ConfigurationManager.AppSettings[$"{Prefix}{key}"];
 
-            if (string.IsNullOrWhiteSpace(connectionString)) throw new Exception(string.Format("Could not find connection string with key \"{0}{1}\" in the config's appSettings", Prefix, key));
+            if (string.IsNullOrWhiteSpace(connectionString)) throw new Exception($"Could not find connection string with key \"{Prefix}{key}\" in the config's appSettings");
 
             return connectionString;
         }
