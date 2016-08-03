@@ -4,6 +4,7 @@ using FluentAssertions;
 using Utilitarian.Settings;
 using Utilitarian.Status.Test.Unit.Mocks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Utilitarian.Settings.Test.Unit.Mocks;
 
 namespace Utilitarian.Status.Test.Unit.TestClasses
 {
@@ -14,8 +15,12 @@ namespace Utilitarian.Status.Test.Unit.TestClasses
 
         public StatusCheckServiceTests()
         {
-            var settingsProvider = new AppSettingsSettingsProvider();
-            var connectionStringProvider = new AppSettingsConnectionStringProvider();
+            var settingsProvider = new MockSettingsProvider();
+            settingsProvider.Settings.Add("StatusCheck:TimeoutLimitInSeconds", 2);
+            settingsProvider.Settings.Add("StatusCheck:PollIncrementInSeconds", 5);
+
+            var connectionStringProvider = new MockConnectionStringProvider();
+            connectionStringProvider.ConnectionStrings.Add("TestConnectionString", "Server=TestServer;Database=TestDatabase;User Id=TestUser;Password=password;");
 
             _statusCheckService = new StatusCheckService(settingsProvider, new IStatusCheck[] {
                 new GoodStatusCheck(),
@@ -91,11 +96,16 @@ namespace Utilitarian.Status.Test.Unit.TestClasses
         [TestMethod]
         public void ShouldContinueToPollAfterForceUpdate()
         {
-            _statusCheckService.ForceUpdate();
-
             var initialLastUpdatedUtc = _statusCheckService.GetStatus(typeof(GoodStatusCheck)).LastUpdatedUtc;
 
-            Thread.Sleep(_statusCheckService.PollIncrement + _statusCheckService.TimeoutLimit + 2000);
+            _statusCheckService.ForceUpdate();
+
+            initialLastUpdatedUtc = _statusCheckService.GetStatus(typeof(GoodStatusCheck)).LastUpdatedUtc;
+            _statusCheckService.GetStatus(typeof(GoodStatusCheck)).LastUpdatedUtc.Should().BeAfter(initialLastUpdatedUtc);
+
+            initialLastUpdatedUtc = _statusCheckService.GetStatus(typeof(GoodStatusCheck)).LastUpdatedUtc;
+
+            Thread.Sleep(_statusCheckService.PollIncrement + _statusCheckService.TimeoutLimit + 6000);
 
             _statusCheckService.GetStatus(typeof(GoodStatusCheck)).LastUpdatedUtc.Should().BeAfter(initialLastUpdatedUtc);
         }
