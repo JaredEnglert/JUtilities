@@ -10,6 +10,8 @@ namespace Utilitarian.FluentExcel
 
         public short HeaderFontSize { get; set; }
 
+        public Color AlternatingDataRowColor { get; set; }
+
         public Color DataFontColor { get; set; }
 
         public short DataFontSize { get; set; }
@@ -20,37 +22,23 @@ namespace Utilitarian.FluentExcel
 
         public short TotalsFontSize { get; set; }
 
+        public bool ShadeAlternateRows { get; set; }
+
         public StylingOptions()
         {
-            HeaderRowColor = ExcelStyleDefaults.HeaderRowColor;
-            HeaderFontColor = ExcelStyleDefaults.HeaderFontColor;
-            HeaderFontSize = ExcelStyleDefaults.HeaderFontSize;
+            HeaderRowColor = Color.MediumSeaGreen;
+            HeaderFontColor = Color.White;
+            HeaderFontSize = 12;
 
-            DataFontColor = ExcelStyleDefaults.DataFontColor;
-            DataFontSize = ExcelStyleDefaults.DataFontSize;
+            AlternatingDataRowColor = Color.LightGray;
+            DataFontColor = Color.Black;
+            DataFontSize = 11;
 
-            TotalsRowColor = ExcelStyleDefaults.TotalsRowColor;
-            TotalsFontColor = ExcelStyleDefaults.TotalsFontColor;
-            TotalsFontSize = ExcelStyleDefaults.TotalsFontSize;
-        }
+            TotalsRowColor = Color.MediumSeaGreen;
+            TotalsFontColor = Color.White;
+            TotalsFontSize = 12;
 
-        private static class ExcelStyleDefaults
-        {
-            public static Color HeaderRowColor => Color.MediumSeaGreen;
-
-            public static Color HeaderFontColor => Color.White;
-
-            public static Color DataFontColor => Color.Black;
-
-            public static Color TotalsRowColor => Color.MediumSeaGreen;
-
-            public static Color TotalsFontColor => Color.Black;
-
-            public static short HeaderFontSize => 12;
-
-            public static short DataFontSize => 11;
-
-            public static short TotalsFontSize => 12;
+            ShadeAlternateRows = true;
         }
     }
 }
