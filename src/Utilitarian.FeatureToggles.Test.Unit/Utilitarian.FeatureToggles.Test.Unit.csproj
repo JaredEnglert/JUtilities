@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E5046501-2B01-4DEA-9E04-9F39418538CA}</ProjectGuid>
+    <ProjectGuid>{5079E3D2-7761-4460-9C68-28CF02EA8ED2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Utilitarian.Caching.Test.Unit</RootNamespace>
-    <AssemblyName>Utilitarian.Caching.Test.Unit</AssemblyName>
+    <RootNamespace>Utilitarian.FeatureToggles.Test.Unit</RootNamespace>
+    <AssemblyName>Utilitarian.FeatureToggles.Test.Unit</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -55,26 +55,18 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
-          <Private>False</Private>
-        </Reference>
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
       </ItemGroup>
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="TestClasses\CacheRepositoryTests.cs" />
-    <Compile Include="Mocks\MockCacheService.cs" />
+    <Compile Include="TestClasses\FeatureToggleServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestClasses\CacheServiceBaseTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Utilitarian.Caching\Utilitarian.Caching.csproj">
-      <Project>{1f61d568-3ab8-4771-9bbe-7948dd5e02ed}</Project>
-      <Name>Utilitarian.Caching</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Utilitarian.Extensions\Utilitarian.Extensions.csproj">
-      <Project>{05291AD2-5A85-4073-AA58-36F035B0F75E}</Project>
-      <Name>Utilitarian.Extensions</Name>
+    <ProjectReference Include="..\Utilitarian.FeatureToggles\Utilitarian.FeatureToggles.csproj">
+      <Project>{A8014048-ADCF-4411-A75C-D1FAB805F7FE}</Project>
+      <Name>Utilitarian.FeatureToggles</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
