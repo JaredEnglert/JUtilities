@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
+using NPOI.SS.Util;
 using Utilitarian.FluentExcel.Attributes;
 
 namespace Utilitarian.FluentExcel
@@ -23,7 +24,7 @@ namespace Utilitarian.FluentExcel
 
         public NpoiWorkbook AddWorkSheet<T>(IEnumerable<T> collection, string workSheetName, StylingOptions stylingOptions = null)
         {
-            GetXlColor(_hssfWorkbook, Color.Azure);
+            GetXlColor(Color.Azure);
 
             if (collection == null) throw new ArgumentNullException(nameof(collection));
             if (string.IsNullOrWhiteSpace(workSheetName)) throw new ArgumentNullException(nameof(workSheetName));
@@ -35,17 +36,19 @@ namespace Utilitarian.FluentExcel
             var type = typeof(T);
             var properties = type.GetProperties()
                 .Where(p => p.CustomAttributes.All(a =>
-                    !a.AttributeType.GetInterfaces().Contains(typeof(ExportAttributeBase))
+                    !a.AttributeType.IsSubclassOf(typeof(ExportAttributeBase))
                     || a.CreateInstance<ExportAttributeBase>().ShouldExport(collection))
                 ).ToList();
 
             var worksheet = _hssfWorkbook.CreateSheet(workSheetName);
             var columnFormatters = new Dictionary<int, short>();
             var styleCache = new Dictionary<string, ICellStyle>();
+            
+            if (stylingOptions.ShadeAlternateRows) ShadeAlternatingRows(worksheet, stylingOptions, enumeratedCollection.Count, properties.Count);
 
-            var totalsColumns = CreateHeader(_hssfWorkbook, worksheet, type, properties, stylingOptions, columnFormatters, styleCache);
-            CreateDataRows(_hssfWorkbook, worksheet, properties, enumeratedCollection, stylingOptions, columnFormatters, styleCache);
-            CreateTotals(_hssfWorkbook, worksheet, totalsColumns, properties, enumeratedCollection.Count, stylingOptions, styleCache);
+            var totalsColumns = CreateHeader(worksheet, type, properties, stylingOptions, columnFormatters, styleCache);
+            CreateDataRows(worksheet, properties, enumeratedCollection, stylingOptions, columnFormatters, styleCache);
+            CreateTotals(worksheet, totalsColumns, properties, enumeratedCollection.Count, stylingOptions, styleCache);
             
             return this;
         }
@@ -59,20 +62,20 @@ namespace Utilitarian.FluentExcel
             return stream;
         }
 
-        private static short GetXlColor(HSSFWorkbook workbook, Color color)
+        private short GetXlColor(Color color)
         {
-            var xlPalette = workbook.GetCustomPalette();
+            var xlPalette = _hssfWorkbook.GetCustomPalette();
             var xlColour = xlPalette.FindColor(color.R, color.G, color.B) ?? xlPalette.FindSimilarColor(color.R, color.G, color.B);
 
             return xlColour.Indexed;
         }
         
-        private static Collection<TotalsColumn> CreateHeader(HSSFWorkbook workbook, ISheet worksheet, Type type, IList<PropertyInfo> properties, StylingOptions stylingOptions,
+        private Collection<TotalsColumn> CreateHeader(ISheet worksheet, Type type, IList<PropertyInfo> properties, StylingOptions stylingOptions,
             Dictionary<int, short> columnFormatters, Dictionary<string, ICellStyle> styleCache)
         {
-            var headerRowColorId = GetXlColor(workbook, stylingOptions.HeaderRowColor);
-            var headerFontColorId = GetXlColor(workbook, stylingOptions.HeaderFontColor);
-            var headerCellStyle = GetCellStyle(workbook, 0, headerFontColorId, stylingOptions.HeaderFontSize, styleCache, true, headerRowColorId, HorizontalAlignment.Center);
+            var headerRowColorId = GetXlColor(stylingOptions.HeaderRowColor);
+            var headerFontColorId = GetXlColor(stylingOptions.HeaderFontColor);
+            var headerCellStyle = GetCellStyle(0, headerFontColorId, stylingOptions.HeaderFontSize, styleCache, true, headerRowColorId, HorizontalAlignment.Center);
             var headerRow = worksheet.CreateRow(0);
             var totalsColumns = new Collection<TotalsColumn>();
 
@@ -83,7 +86,7 @@ namespace Utilitarian.FluentExcel
                 headerRow.Cells[columnIndex].CellStyle = headerCellStyle;
 
                 var formatAttribute = Attribute.GetCustomAttribute(type.GetProperty(properties[columnIndex].Name), typeof(FormatAttribute)) as FormatAttribute;
-                var format = GetFormatId(workbook, formatAttribute);
+                var format = GetFormatId(formatAttribute);
                 columnFormatters.Add(columnIndex, format);
 
                 var totalsAttribute = Attribute.GetCustomAttribute(type.GetProperty(properties[columnIndex].Name), typeof(FormulaAttribute)) as FormulaAttribute;
@@ -103,10 +106,10 @@ namespace Utilitarian.FluentExcel
             return totalsColumns;
         }
 
-        private static void CreateDataRows<T>(HSSFWorkbook workbook, ISheet worksheet, IList<PropertyInfo> properties,
+        private void CreateDataRows<T>(ISheet worksheet, IList<PropertyInfo> properties,
             IReadOnlyList<T> enumeratedCollection, StylingOptions stylingOptions, Dictionary<int, short> columnFormatters, Dictionary<string, ICellStyle> styleCache)
         {
-            var dataFontColorId = GetXlColor(workbook, stylingOptions.DataFontColor);
+            var dataFontColorId = GetXlColor(stylingOptions.DataFontColor);
 
             for (var rowIndex = 0; rowIndex < enumeratedCollection.Count; rowIndex++)
             {
@@ -115,7 +118,7 @@ namespace Utilitarian.FluentExcel
                 foreach (var columnIndex in properties.Select(properties.IndexOf))
                 {
                     SetCellValue(row.CreateCell(columnIndex), properties[columnIndex].GetValue(enumeratedCollection[rowIndex]), properties[columnIndex].PropertyType);
-                    row.Cells[columnIndex].CellStyle = GetCellStyle(workbook, columnFormatters[columnIndex], dataFontColorId, stylingOptions.DataFontSize, styleCache);
+                    row.Cells[columnIndex].CellStyle = GetCellStyle(columnFormatters[columnIndex], dataFontColorId, stylingOptions.DataFontSize, styleCache);
                 }
             }
 
@@ -126,13 +129,13 @@ namespace Utilitarian.FluentExcel
             }
         }
 
-        private static void CreateTotals(HSSFWorkbook workbook, ISheet worksheet, IList<TotalsColumn> totalsColumns, IList<PropertyInfo> properties, int rowCount,
+        private void CreateTotals(ISheet worksheet, IList<TotalsColumn> totalsColumns, IList<PropertyInfo> properties, int rowCount,
             StylingOptions stylingOptions, Dictionary<string, ICellStyle> styleCache)
         {
             if (totalsColumns == null || !totalsColumns.Any()) return;
 
-            var totalsRowColorId = GetXlColor(workbook, stylingOptions.TotalsRowColor);
-            var totalsFontColorId = GetXlColor(workbook, stylingOptions.TotalsFontColor);
+            var totalsRowColorId = GetXlColor(stylingOptions.TotalsRowColor);
+            var totalsFontColorId = GetXlColor(stylingOptions.TotalsFontColor);
             var totalsRow = worksheet.CreateRow(rowCount + 1);
 
             foreach (var columnIndex in properties.Select(properties.IndexOf))
@@ -143,13 +146,13 @@ namespace Utilitarian.FluentExcel
                 if (totalsColumn == null)
                 {
                     SetCellValue(cell, columnIndex == 0 ? "Totals:" : null, typeof(string));
-                    totalsRow.Cells[columnIndex].CellStyle = GetCellStyle(workbook, 0, totalsFontColorId, stylingOptions.TotalsFontSize, styleCache, true, totalsRowColorId, HorizontalAlignment.Left);
+                    totalsRow.Cells[columnIndex].CellStyle = GetCellStyle(0, totalsFontColorId, stylingOptions.TotalsFontSize, styleCache, true, totalsRowColorId, HorizontalAlignment.Left);
                 }
                 else
                 {
                     cell.SetCellFormula(GetCellFormula(totalsColumn.TotalType, columnIndex, rowCount));
                     totalsRow.Cells[columnIndex].CellStyle =
-                        GetCellStyle(workbook, totalsColumn.Format, totalsFontColorId, stylingOptions.TotalsFontSize, styleCache, true, totalsRowColorId, HorizontalAlignment.Right);
+                        GetCellStyle(totalsColumn.Format, totalsFontColorId, stylingOptions.TotalsFontSize, styleCache, true, totalsRowColorId, HorizontalAlignment.Right);
                 }
             }
         }
@@ -195,7 +198,7 @@ namespace Utilitarian.FluentExcel
             }
         }
 
-        private static short GetFormatId(IWorkbook workbook, FormatAttribute formatAttribute)
+        private short GetFormatId(FormatAttribute formatAttribute)
         {
             if (formatAttribute == null) return 0;
 
@@ -203,7 +206,7 @@ namespace Utilitarian.FluentExcel
 
             if (formatId != -1) return formatId;
 
-            return workbook.CreateDataFormat().GetFormat(formatAttribute.FormatString);
+            return _hssfWorkbook.CreateDataFormat().GetFormat(formatAttribute.FormatString);
         }
 
         private static string GetCellFormula(FormulaType formulaType, int columnIndex, int rowCount)
@@ -234,19 +237,19 @@ namespace Utilitarian.FluentExcel
             return columnName;
         }
 
-        private static ICellStyle GetCellStyle(IWorkbook workbook, short format, short fontColorId, short fontSize, Dictionary<string, ICellStyle> styleCache,
+        private ICellStyle GetCellStyle(short format, short fontColorId, short fontSize, Dictionary<string, ICellStyle> styleCache,
             bool isBold = false, short? rowColorId = null, HorizontalAlignment? horizontalAlignment = null)
         {
             var key = $"{format}:{isBold}:{rowColorId}:{horizontalAlignment}";
 
             if (styleCache.ContainsKey(key)) return styleCache[key];
 
-            var font = workbook.CreateFont();
+            var font = _hssfWorkbook.CreateFont();
             font.FontHeightInPoints = fontSize;
             font.Color = fontColorId;
             if (isBold) font.Boldweight = (short)FontBoldWeight.Bold;
 
-            var cellStyle = workbook.CreateCellStyle();
+            var cellStyle = _hssfWorkbook.CreateCellStyle();
             cellStyle.SetFont(font);
             cellStyle.DataFormat = format;
             if (horizontalAlignment.HasValue) cellStyle.Alignment = horizontalAlignment.Value;
@@ -260,7 +263,20 @@ namespace Utilitarian.FluentExcel
 
             return cellStyle;
         }
-        
+
+        private void ShadeAlternatingRows(ISheet sheet, StylingOptions stylingOptions, int rowCount, int columnCount)
+        {
+            var conditionalFormattingRule = sheet.SheetConditionalFormatting.CreateConditionalFormattingRule("MOD(ROW(),2)");
+
+            var patternFormatting = conditionalFormattingRule.CreatePatternFormatting();
+            patternFormatting.FillBackgroundColor = GetXlColor(stylingOptions.AlternatingDataRowColor);
+            patternFormatting.FillPattern = (short)FillPattern.SolidForeground;
+
+            CellRangeAddress[] regions = {new CellRangeAddress(2, rowCount, 0, columnCount - 1)};
+
+            sheet.SheetConditionalFormatting.AddConditionalFormatting(regions, conditionalFormattingRule);
+        }
+
         private class TotalsColumn
         {
             public int ColumnIndex { get; set; }
