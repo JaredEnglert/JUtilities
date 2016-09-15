@@ -23,6 +23,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilitarian.FluentExcel", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilitarian.FluentExcel.Test.Unit", "Utilitarian.FluentExcel.Test.Unit\Utilitarian.FluentExcel.Test.Unit.csproj", "{55CD72DA-74BE-432A-81B9-2AA2F37DC011}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilitarian.FeatureToggles", "Utilitarian.FeatureToggles\Utilitarian.FeatureToggles.csproj", "{A8014048-ADCF-4411-A75C-D1FAB805F7FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilitarian.FeatureToggles.Test.Unit", "Utilitarian.FeatureToggles.Test.Unit\Utilitarian.FeatureToggles.Test.Unit.csproj", "{5079E3D2-7761-4460-9C68-28CF02EA8ED2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +73,14 @@ Global
 		{55CD72DA-74BE-432A-81B9-2AA2F37DC011}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55CD72DA-74BE-432A-81B9-2AA2F37DC011}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55CD72DA-74BE-432A-81B9-2AA2F37DC011}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8014048-ADCF-4411-A75C-D1FAB805F7FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8014048-ADCF-4411-A75C-D1FAB805F7FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8014048-ADCF-4411-A75C-D1FAB805F7FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8014048-ADCF-4411-A75C-D1FAB805F7FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5079E3D2-7761-4460-9C68-28CF02EA8ED2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5079E3D2-7761-4460-9C68-28CF02EA8ED2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5079E3D2-7761-4460-9C68-28CF02EA8ED2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5079E3D2-7761-4460-9C68-28CF02EA8ED2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
