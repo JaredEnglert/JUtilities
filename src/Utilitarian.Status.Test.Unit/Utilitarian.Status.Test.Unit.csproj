@@ -70,6 +70,10 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <ProjectReference Include="..\Utilitarian.Settings.Test.Unit\Utilitarian.Settings.Test.Unit.csproj">
+      <Project>{57528344-a5ee-43ad-853c-88d962650c5c}</Project>
+      <Name>Utilitarian.Settings.Test.Unit</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Utilitarian.Settings\Utilitarian.Settings.csproj">
       <Project>{203F2B50-C86E-4B15-AD0D-5F5860ADA816}</Project>
       <Name>Utilitarian.Settings</Name>
@@ -80,7 +84,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Choose>

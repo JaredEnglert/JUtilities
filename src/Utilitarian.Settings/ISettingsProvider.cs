@@ -4,7 +4,7 @@
     {
         T Get<T>(string key);
 
-        string Get(string key);
+        object Get(string key);
 
         bool TryGet<T>(string key, out T value);
 
