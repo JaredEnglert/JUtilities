@@ -9,14 +9,14 @@ namespace Utilitarian.Extensions
         {
             var type = @enum.GetType();
 
-            var memInfo = type.GetMember(@enum.ToString());
+            var memberInfo = type.GetMember(@enum.ToString());
 
-            if (memInfo.Length <= 0) return @enum.ToString();
+            if (memberInfo.Length <= 0) return @enum.ToString();
 
-            var attrs = memInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
+            var customAttributes = memberInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
 
-            return attrs.Length > 0
-                ? ((DescriptionAttribute)attrs[0]).Description
+            return customAttributes.Length > 0
+                ? ((DescriptionAttribute)customAttributes[0]).Description
                 : @enum.ToString();
         }
     }
