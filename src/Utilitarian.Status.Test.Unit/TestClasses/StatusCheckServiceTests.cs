@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Utilitarian.Status.Test.Unit.Mocks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rhino.Mocks;
+using Utilitarian.Settings;
 
 namespace Utilitarian.Status.Test.Unit.TestClasses
 {
@@ -25,7 +25,7 @@ namespace Utilitarian.Status.Test.Unit.TestClasses
         {
             goodStatusCheck = new GoodStatusCheck();
             badStatusCheck = new BadStatusCheck();
-            timeoutStatusCheck = new TimeoutStatusCheck();
+            timeoutStatusCheck = new TimeoutStatusCheck(GetSettingsProvider());
             databaseStatusCheck = new DatabaseStatusCheck(GetConnectionStringProvider());
         }
 
