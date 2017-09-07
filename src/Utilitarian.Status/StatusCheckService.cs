@@ -68,7 +68,7 @@ namespace Utilitarian.Status
 
         private void Update()
         {
-            _statusChecks.AsParallel().ForAll(statusCheck => 
+            _statusChecks.AsParallel().ForAll(statusCheck =>
             {
                 var status = new Status
                 {

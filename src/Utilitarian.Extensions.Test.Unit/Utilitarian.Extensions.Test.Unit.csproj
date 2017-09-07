@@ -63,6 +63,8 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="TestClasses\CollectionExtensions\RemoveAllTests.cs" />
+    <Compile Include="TestClasses\CollectionExtensions\RemoveItemTests.cs" />
     <Compile Include="TestClasses\EnumExtensions\ToDescriptionTests.cs" />
     <Compile Include="TestClasses\ExceptionExtensions\ToJsonTests.cs" />
     <Compile Include="TestClasses\ObjectExtensions\ToFileTests.cs" />

@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Utilitarian.Settings;
 using Utilitarian.Status.Test.Unit.Mocks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rhino.Mocks;

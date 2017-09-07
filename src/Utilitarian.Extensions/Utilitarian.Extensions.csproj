@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ByteArrayExtensions.cs" />
+    <Compile Include="CollectionExtensions.cs" />
     <Compile Include="EnumExtensions.cs" />
     <Compile Include="ExceptionExtensions.cs" />
     <Compile Include="ObjectExtensions.cs" />
