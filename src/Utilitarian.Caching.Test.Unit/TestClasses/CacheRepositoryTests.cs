@@ -1,6 +1,6 @@
-﻿using FluentAssertions;
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Utilitarian.Caching.Test.Unit.Mocks;
+using Rhino.Mocks;
 
 namespace Utilitarian.Caching.Test.Unit.TestClasses
 {
@@ -9,64 +9,102 @@ namespace Utilitarian.Caching.Test.Unit.TestClasses
     {
         private const string Key = "TestKey";
 
-        [TestMethod]
-        public void ShouldGetFromDataStoreWhenNotCached()
-        {
-            var store = new Store();
-            using (var cacheRepository = GetCacheRepository())
-            {
-                cacheRepository.Get(Key, store.GetString);
+        private const string Value = "TestValue";
 
-                store.TimesCalled.ShouldBeEquivalentTo(1);
+        #region Get Method
+
+        [TestMethod]
+        public void Get_Cached_ShouldGetFromCache()
+        {
+            var store = GetStore();
+
+            store
+                .Stub(s => s.GetValue())
+                .Return(Value);
+
+            var cacheService = GetCacheService();
+
+            cacheService
+                .Stub(s => s.TryGet(Key, out string _))
+                .OutRef(Value)
+                .Return(true);
+
+            using (var cacheRepository = GetCacheRepository(cacheService))
+            {
+                cacheRepository.Get(Key, store.GetValue);
+
+                store.AssertWasNotCalled(s => s.GetValue());
             }
         }
 
         [TestMethod]
-        public void ShouldOnlyGetFromDataStoreOnce()
+        public void Get_NotCached_ShouldGetFromDataStore()
         {
-            var store = new Store();
-            using (var cacheRepository = GetCacheRepository())
-            {
-                cacheRepository.Get(Key, store.GetString);
-                cacheRepository.Get(Key, store.GetString);
-                cacheRepository.Get(Key, store.GetString);
+            var store = GetStore();
 
-                store.TimesCalled.ShouldBeEquivalentTo(1);
+            store
+                .Stub(s => s.GetValue())
+                .Return(Value);
+
+            var cacheService = GetCacheService();
+
+            cacheService
+                .Stub(s => s.TryGet(Key, out string _))
+                .Return(false);
+
+            using (var cacheRepository = GetCacheRepository(cacheService))
+            {
+                cacheRepository.Get(Key, store.GetValue);
+
+                store.AssertWasCalled(s => s.GetValue());
             }
         }
 
         [TestMethod]
-        public void ShouldCacheValue()
+        public void Get_ShouldCacheValue()
         {
-            var store = new Store();
-            var cacheService = new MockCacheService();
+            var store = GetStore();
+
+            store
+                .Stub(s => s.GetValue())
+                .Return(Value);
+
+            var cacheService = GetCacheService();
+
+            cacheService
+                .Stub(s => s.TryGet(Key, out string _))
+                .Return(false);
+
             using (var cacheRepository = new CacheRepository(cacheService))
             {
-                var value = cacheRepository.Get(Key, store.GetString);
-                cacheService.Get<string>(Key).ShouldBeEquivalentTo(value);
+                cacheRepository.Get(Key, store.GetValue);
+
+                cacheService.AssertWasCalled(s => s.SetExpiring(Arg<string>.Is.Anything, Arg<object>.Is.Anything, Arg<TimeSpan>.Is.Anything, Arg<bool>.Is.Anything));
             }
         }
 
-        private static CacheRepository GetCacheRepository()
+        #endregion Get Method
+
+        private static CacheRepository GetCacheRepository(ICacheService cacheService = null)
         {
-            return new CacheRepository(new MockCacheService());
+            if (cacheService == null) cacheService = GetCacheService();
+
+            return new CacheRepository(cacheService);
         }
 
-        private class Store
+        private static ICacheService GetCacheService()
         {
-            public int TimesCalled { get; private set; }
+            return MockRepository.GenerateMock<ICacheService>();
+        }
 
-            public Store()
-            {
-                TimesCalled = 0;
-            }
+        private static IStore GetStore()
+        {
+            return MockRepository.GenerateMock<IStore>();
+        }
 
-            public string GetString()
-            {
-                TimesCalled++;
-
-                return "SomeString";
-            }
+        public interface IStore
+        {
+            string GetValue();
         }
     }
 }

@@ -56,7 +56,7 @@ namespace Utilitarian.Extensions
 
         private static T CastToGuid<T>(object @object)
         {
-            return (T)((object)Guid.Parse(@object.ToString()));
+            return (T)(object)Guid.Parse(@object.ToString());
         }
     }
 }

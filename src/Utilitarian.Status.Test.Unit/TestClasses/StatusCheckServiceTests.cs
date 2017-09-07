@@ -1,90 +1,96 @@
-﻿using System.Linq;
-using System.Threading;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Utilitarian.Status.Test.Unit.Mocks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Utilitarian.Settings.Test.Unit.Mocks;
+using Rhino.Mocks;
+using Utilitarian.Settings;
 
 namespace Utilitarian.Status.Test.Unit.TestClasses
 {
     [TestClass]
     public class StatusCheckServiceTests
     {
-        private readonly MockSettingsProvider _mockSettingsProvider;
+        private IStatusCheck goodStatusCheck;
 
-        private readonly MockConnectionStringProvider _mockConnectionStringProvider;
+        private IStatusCheck badStatusCheck;
 
-        public StatusCheckServiceTests()
+        private IStatusCheck timeoutStatusCheck;
+
+        private IStatusCheck databaseStatusCheck;
+
+        [TestInitialize]
+        public void TestInitialize()
         {
-            _mockSettingsProvider = new MockSettingsProvider();
-            _mockSettingsProvider.Settings.Add("StatusCheck:TimeoutLimitInSeconds", 1);
-            _mockSettingsProvider.Settings.Add("StatusCheck:PollIncrementInSeconds", 3);
+            goodStatusCheck = new GoodStatusCheck();
+            badStatusCheck = new BadStatusCheck();
+            timeoutStatusCheck = new TimeoutStatusCheck(GetSettingsProvider());
+            databaseStatusCheck = new DatabaseStatusCheck(GetConnectionStringProvider());
+        }
 
-            _mockConnectionStringProvider = new MockConnectionStringProvider();
-            _mockConnectionStringProvider.ConnectionStrings.Add("TestConnectionString", "Server=TestServer;Database=TestDatabase;User Id=TestUser;Password=password;");
+        #region GetStatus Method
+
+        [TestMethod]
+        public void GetStatus_DoesNotExist_ShouldReturnNull()
+        {
+            GetStatusCheckService(new IStatusCheck[0]).GetStatus(typeof(UnusedStatusCheck)).Should().BeNull();
         }
 
         [TestMethod]
-        public void ShouldReturnTrueForValidStatus()
+        public void GetStatus_DoesExist_ShouldReturnStatus()
         {
-            var statusCheckService = CreateStatusCheckService();
-
-            statusCheckService.GetStatus(typeof(GoodStatusCheck)).IsActive.Should().BeTrue();
+            GetStatusCheckService(new[] { goodStatusCheck }).GetStatus(typeof(GoodStatusCheck)).Should().NotBeNull();
         }
 
         [TestMethod]
-        public void ShouldReturnFalseForInvalidStatus()
+        public void GetStatus_ValidStatus_ShouldReturnTrue()
         {
-            var statusCheckService = CreateStatusCheckService();
-
-            statusCheckService.GetStatus(typeof(BadStatusCheck)).IsActive.Should().BeFalse();
+            GetStatusCheckService(new [] { goodStatusCheck }).GetStatus(typeof(GoodStatusCheck)).IsActive.Should().BeTrue();
         }
 
         [TestMethod]
-        public void ShouldReturnExceptionForInvalidStatus()
+        public void GetStatus_InvalidStatus_ShouldReturnFalse()
         {
-            var statusCheckService = CreateStatusCheckService();
-
-            statusCheckService.GetStatus(typeof(BadStatusCheck)).Exception.Should().NotBeNull();
+            GetStatusCheckService(new[] { badStatusCheck }).GetStatus(typeof(BadStatusCheck)).IsActive.Should().BeFalse();
         }
 
         [TestMethod]
-        public void ShouldReturnNullWhenDoesNotExist()
+        public void GetStatus_InvalidStatus_ShouldReturnException()
         {
-            var statusCheckService = CreateStatusCheckService();
-
-            statusCheckService.GetStatus(typeof(UnusedStatusCheck)).Should().BeNull();
+            GetStatusCheckService(new[] { badStatusCheck }).GetStatus(typeof(BadStatusCheck)).Exception.Should().NotBeNull();
         }
 
         [TestMethod]
-        public void ShouldReturnAllStatuses()
+        public void GetStatus_TimeoutIsHit_ShouldReturnFalse()
         {
-            var statusCheckService = CreateStatusCheckService();
-
-            statusCheckService.GetStatuses().Count().ShouldBeEquivalentTo(4);
+            GetStatusCheckService(new[] { timeoutStatusCheck }).GetStatus(typeof(TimeoutStatusCheck)).IsActive.Should().BeFalse();
         }
 
         [TestMethod]
-        public void ShouldReturnTheCorrectStatus()
+        public void GetStatus_DatabaseDoesNotExist_ShouldReturnFalse()
         {
-            var statusCheckService = CreateStatusCheckService();
-
-            statusCheckService.GetStatus(typeof(GoodStatusCheck)).IsActive.Should().BeTrue();
-            statusCheckService.GetStatus(typeof(BadStatusCheck)).IsActive.Should().BeFalse();
+            GetStatusCheckService(new[] { databaseStatusCheck }).GetStatus(typeof(DatabaseStatusCheck)).IsActive.Should().BeFalse();
         }
 
-        [TestMethod]
-        public void ShouldReturnFalseWhenTimeoutIsHit()
-        {
-            var statusCheckService = CreateStatusCheckService();
+        #endregion GetStatus Method
 
-            statusCheckService.GetStatus(typeof(TimeoutStatusCheck)).IsActive.Should().BeFalse();
+        #region GetStatuses Method
+
+        [TestMethod]
+        public void GetStatuses_ShouldReturnAllStatuses()
+        {
+            GetStatusCheckService().GetStatuses().Count().ShouldBeEquivalentTo(4);
         }
 
+        #endregion GetStatuses Method
+
+        #region ForceUpdate Method
+
         [TestMethod]
-        public void ShouldUpdateLastUpdatedUtc()
+        public void ForceUpdate_ShouldUpdateLastUpdatedUtc()
         {
-            var statusCheckService = CreateStatusCheckService();
+            var statusCheckService = GetStatusCheckService(new[] { goodStatusCheck });
             var initialLastUpdatedUtc = statusCheckService.LastUpdatedUtc;
 
             statusCheckService.ForceUpdate();
@@ -93,9 +99,9 @@ namespace Utilitarian.Status.Test.Unit.TestClasses
         }
 
         [TestMethod]
-        public void ShouldUpdateLastUpdatedUtcOnStatus()
+        public void ForceUpdate_ShouldUpdateLastUpdatedUtcOnStatus()
         {
-            var statusCheckService = CreateStatusCheckService();
+            var statusCheckService = GetStatusCheckService(new[] { goodStatusCheck });
             var initialLastUpdatedUtc = statusCheckService.GetStatus(typeof(GoodStatusCheck)).LastUpdatedUtc;
 
             statusCheckService.ForceUpdate();
@@ -104,36 +110,56 @@ namespace Utilitarian.Status.Test.Unit.TestClasses
         }
 
         [TestMethod]
-        public void ShouldContinueToPollAfterForceUpdate()
+        public async Task ForceUpdate_ShouldContinueToPollAfterForceUpdate()
         {
-            var statusCheckService = CreateStatusCheckService();
-            var initialLastUpdatedUtc = statusCheckService.GetStatus(typeof(GoodStatusCheck)).LastUpdatedUtc;
+            var statusCheckService = GetStatusCheckService(new[] { goodStatusCheck });
+            statusCheckService.GetStatus(typeof(GoodStatusCheck));
 
             statusCheckService.ForceUpdate();
-            
-            initialLastUpdatedUtc = statusCheckService.GetStatus(typeof(GoodStatusCheck)).LastUpdatedUtc;
 
-            Thread.Sleep(statusCheckService.PollIncrement + statusCheckService.TimeoutLimit + 6000);
+            var initialLastUpdatedUtc = statusCheckService.GetStatus(typeof(GoodStatusCheck)).LastUpdatedUtc;
+
+            await Task.Delay(statusCheckService.PollIncrement + statusCheckService.TimeoutLimit + 6000);
 
             statusCheckService.GetStatus(typeof(GoodStatusCheck)).LastUpdatedUtc.Should().BeAfter(initialLastUpdatedUtc);
         }
 
-        [TestMethod]
-        public void ShouldReturnFalseWhenDatabaseDoesNotExist()
-        {
-            var statusCheckService = CreateStatusCheckService();
+        #endregion ForceUpdate Method
 
-            statusCheckService.GetStatus(typeof(DatabaseStatusCheck)).IsActive.Should().BeFalse();
-        }
+        #region Private Methods
 
-        private StatusCheckService CreateStatusCheckService()
+        private StatusCheckService GetStatusCheckService(IEnumerable<IStatusCheck> statusChecks = null, ISettingsProvider settingsProvider = null)
         {
-            return new StatusCheckService(_mockSettingsProvider, new IStatusCheck[] {
-                new GoodStatusCheck(),
-                new BadStatusCheck(),
-                new TimeoutStatusCheck(_mockSettingsProvider),
-                new DatabaseStatusCheck(_mockConnectionStringProvider)
+            if (settingsProvider == null) settingsProvider = GetSettingsProvider();
+
+            return new StatusCheckService(settingsProvider, statusChecks ?? new[]
+            {
+                goodStatusCheck,
+                badStatusCheck,
+                timeoutStatusCheck,
+                databaseStatusCheck
             });
         }
+
+        private static ISettingsProvider GetSettingsProvider()
+        {
+            var settingsProvider = MockRepository.GenerateMock<ISettingsProvider>();
+
+            settingsProvider.Stub(p => p.Get("StatusCheck:TimeoutLimitInSeconds")).Return(2);
+            settingsProvider.Stub(p => p.Get("StatusCheck:PollIncrementInSeconds")).Return(5);
+
+            return settingsProvider;
+        }
+
+        private static IConnectionStringProvider GetConnectionStringProvider()
+        {
+            var connectionStringProvider = MockRepository.GenerateMock<IConnectionStringProvider>();
+
+            connectionStringProvider.Stub(p => p.Get("TestConnectionString")).Return("Server=TestServer;Database=TestDatabase;User Id=TestUser;Password=password;");
+
+            return connectionStringProvider;
+        }
+
+        #endregion Private Methods
     }
 }
