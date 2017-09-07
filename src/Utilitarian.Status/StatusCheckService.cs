@@ -22,7 +22,7 @@ namespace Utilitarian.Status
 
         private readonly IEnumerable<IStatusCheck> _statusChecks;
 
-        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         public StatusCheckService(ISettingsProvider settingsProvider, IEnumerable<IStatusCheck> statusChecks)
         {
@@ -44,6 +44,26 @@ namespace Utilitarian.Status
         public IEnumerable<Status> GetStatuses()
         {
             return _statuses.Values;
+        }
+
+        public void ForceUpdate()
+        {
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource = new CancellationTokenSource();
+            Poll();
+        }
+
+        private void Poll()
+        {
+            try
+            {
+                Update();
+            }
+            finally
+            {
+                Task.Delay(PollIncrement, _cancellationTokenSource.Token)
+                    .ContinueWith(a => Task.Run(() => Poll()), _cancellationTokenSource.Token);
+            }
         }
 
         private void Update()
@@ -76,24 +96,6 @@ namespace Utilitarian.Status
             });
 
             LastUpdatedUtc = DateTime.UtcNow;
-        }
-
-        public void ForceUpdate()
-        {
-            _cancellationTokenSource.Cancel();
-            Poll();
-        }
-
-        private void Poll()
-        {
-            try
-            {
-                Update();
-            }
-            finally
-            {
-                Task.Delay(PollIncrement, _cancellationTokenSource.Token).ContinueWith(a => Task.Run(() => Poll()), _cancellationTokenSource.Token);
-            }
         }
     }
 }

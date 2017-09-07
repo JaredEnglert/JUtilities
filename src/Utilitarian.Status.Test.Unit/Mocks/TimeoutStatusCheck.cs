@@ -9,7 +9,7 @@ namespace Utilitarian.Status.Test.Unit.Mocks
         {
             var settingsProvider = new AppSettingsSettingsProvider();
 
-            Thread.Sleep((settingsProvider.Get<int>("StatusCheck:TimeoutLimitInSeconds") * 1000) + 1000);
+            Thread.Sleep(settingsProvider.Get<int>("StatusCheck:TimeoutLimitInSeconds") * 1000 + 1000);
 
             return true;
         }

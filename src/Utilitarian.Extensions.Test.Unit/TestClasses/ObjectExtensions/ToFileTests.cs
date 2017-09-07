@@ -11,7 +11,7 @@ namespace Utilitarian.Extensions.Test.Unit.TestClasses.ObjectExtensions
         private const string FilePath = "TestFile.dummy";
 
         [TestMethod]
-        public void ShouldWriteFileFromObject()
+        public void ToFile_ShouldWriteFileFromObject()
         {
             1.ToFile(FilePath);
 
@@ -23,7 +23,7 @@ namespace Utilitarian.Extensions.Test.Unit.TestClasses.ObjectExtensions
         }
 
         [TestMethod]
-        public void ShouldCreateDirectoryIfDoesNotExist()
+        public void ToFile_DirectoryDoesNotExist_ShouldCreateDirectory()
         {
             var directory = Guid.NewGuid().ToString();
             var filePath = $"{directory}\\{FilePath}";
@@ -31,11 +31,13 @@ namespace Utilitarian.Extensions.Test.Unit.TestClasses.ObjectExtensions
             DeleteDirectoryIfExists(directory);
 
             1.ToFile(filePath);
+
+            new DirectoryInfo(directory).Exists.Should().BeTrue();
             
             DeleteDirectoryIfExists(directory);
         }
 
-        private void DeleteDirectoryIfExists(string filePath)
+        private static void DeleteDirectoryIfExists(string filePath)
         {
             var directoryInfo = new DirectoryInfo(filePath);
 
