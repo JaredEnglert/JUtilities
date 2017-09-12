@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Cryptography;
 
 namespace Utilitarian.Extensions
 {
@@ -57,6 +59,36 @@ namespace Utilitarian.Extensions
         private static T CastToGuid<T>(object @object)
         {
             return (T)(object)Guid.Parse(@object.ToString());
+        }
+
+        public static string GetHash<T>(this object @object) where T : HashAlgorithm, new()
+        {
+            var cryptoServiceProvider = new T();
+
+            return ComputeHash(@object, cryptoServiceProvider);
+        }
+
+        public static string GetMd5Hash(this object @object)
+        {
+            return GetHash<MD5CryptoServiceProvider>(@object);
+        }
+
+        public static string GetSha1Hash(this object @object)
+        {
+            return GetHash<SHA1CryptoServiceProvider>(@object);
+        }
+
+        private static string ComputeHash<T>(object @object, T cryptoServiceProvider) where T : HashAlgorithm, new()
+        {
+            var serializer = new DataContractSerializer(@object.GetType());
+
+            using (var memoryStream = new MemoryStream())
+            {
+                serializer.WriteObject(memoryStream, @object);
+                cryptoServiceProvider.ComputeHash(memoryStream.ToArray());
+
+                return Convert.ToBase64String(cryptoServiceProvider.Hash);
+            }
         }
     }
 }

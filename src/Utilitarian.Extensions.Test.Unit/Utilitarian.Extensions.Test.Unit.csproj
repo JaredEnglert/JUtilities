@@ -67,6 +67,7 @@
     <Compile Include="TestClasses\CollectionExtensions\RemoveItemTests.cs" />
     <Compile Include="TestClasses\EnumExtensions\ToDescriptionTests.cs" />
     <Compile Include="TestClasses\ExceptionExtensions\ToJsonTests.cs" />
+    <Compile Include="TestClasses\ObjectExtensions\GetHashTests.cs" />
     <Compile Include="TestClasses\ObjectExtensions\ToFileTests.cs" />
     <Compile Include="TestClasses\ObjectExtensions\ToTypeTTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

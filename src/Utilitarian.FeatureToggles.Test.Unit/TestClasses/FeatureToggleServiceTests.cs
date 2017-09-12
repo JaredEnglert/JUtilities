@@ -74,7 +74,7 @@ namespace Utilitarian.FeatureToggles.Test.Unit.TestClasses
 
             public bool IsEnabled(object @object = null)
             {
-                return !(bool)@object;
+                return @object != null && !(bool)@object;
             }
         }
     }
