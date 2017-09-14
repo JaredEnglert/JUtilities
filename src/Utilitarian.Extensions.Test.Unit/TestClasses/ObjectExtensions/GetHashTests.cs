@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -49,6 +48,7 @@ namespace Utilitarian.Extensions.Test.Unit.TestClasses.ObjectExtensions
         [Serializable]
         private class TestClass
         {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public int Value { get; set; }
 
             public TestClass(int value)

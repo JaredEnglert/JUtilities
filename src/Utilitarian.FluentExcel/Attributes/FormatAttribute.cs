@@ -6,7 +6,7 @@ namespace Utilitarian.FluentExcel.Attributes
     [AttributeUsage(AttributeTargets.Property)]
     public class FormatAttribute : Attribute
     {
-        public string FormatString { get; private set; }
+        public string FormatString { get; }
 
         public FormatAttribute(ExcelFormatters excelFormatters)
         {

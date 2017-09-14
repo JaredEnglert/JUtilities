@@ -5,7 +5,7 @@ namespace Utilitarian.FluentExcel.Attributes
     [AttributeUsage(AttributeTargets.Property)]
     public class FormulaAttribute : Attribute
     {
-        public FormulaType FormulaType { get; private set; }
+        public FormulaType FormulaType { get; }
 
         public FormulaAttribute()
         {

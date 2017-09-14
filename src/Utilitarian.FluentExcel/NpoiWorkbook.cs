@@ -81,6 +81,7 @@ namespace Utilitarian.FluentExcel
 
             for (var columnIndex = 0; columnIndex < properties.Count; columnIndex++)
             {
+                // ReSharper disable AssignNullToNotNullAttribute
                 var displayNameAttribute = Attribute.GetCustomAttribute(type.GetProperty(properties[columnIndex].Name), typeof(DisplayNameAttribute)) as DisplayNameAttribute;
                 headerRow.CreateCell(columnIndex).SetCellValue(displayNameAttribute == null ? properties[columnIndex].Name : displayNameAttribute.DisplayName);
                 headerRow.Cells[columnIndex].CellStyle = headerCellStyle;
@@ -90,6 +91,7 @@ namespace Utilitarian.FluentExcel
                 columnFormatters.Add(columnIndex, format);
 
                 var totalsAttribute = Attribute.GetCustomAttribute(type.GetProperty(properties[columnIndex].Name), typeof(FormulaAttribute)) as FormulaAttribute;
+
                 if (totalsAttribute != null)
                 {
                     totalsColumns.Add(new TotalsColumn
@@ -99,6 +101,7 @@ namespace Utilitarian.FluentExcel
                         TotalType = totalsAttribute.FormulaType
                     });
                 }
+                // ReSharper restore AssignNullToNotNullAttribute
             }
 
             worksheet.CreateFreezePane(0, 1);
