@@ -6,18 +6,18 @@ namespace Utilitarian.Migrations.Interfaces
 {
     public interface IVersionRepository
     {
-        DatabaseType DatabaseType { get; }
+        string DatabaseType { get; }
 
         Task InitializeVersionTable();
 
-        Task<IEnumerable<MigrationRecord>> GetMigrationRecords(string migrationName);
+        Task<IEnumerable<VersionRecord>> GetVersionRecords(string migrationName);
 
-        Task InsertMigrationRecord(string migrationTopic, double version, string description);
+        Task<VersionRecord> InsertVersionRecord(string migrationTopic, double version, string description);
 
-        Task MarkMigrationRecordComplete(string migrationTopic, double version);
+        Task<VersionRecord> MarkVersionRecordComplete(string migrationTopic, double version);
 
-        Task MarkMigrationRecordIncomplete(string migrationTopic, double version);
+        Task<VersionRecord> MarkVersionRecordIncomplete(string migrationTopic, double version);
 
-        Task DeleteMigrationRecord(string migrationTopic, double version);
+        Task DeleteVersionRecord(string migrationTopic, double version);
     }
 }

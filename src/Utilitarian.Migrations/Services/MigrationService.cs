@@ -7,7 +7,6 @@ using Serilog;
 using Utilitarian.Assemblies;
 using Utilitarian.Migrations.Interfaces;
 using Utilitarian.Migrations.Models;
-using Utilitarian.Migrations.Repositories;
 
 namespace Utilitarian.Migrations.Services
 {
@@ -19,23 +18,23 @@ namespace Utilitarian.Migrations.Services
 
         private readonly IVersionRepository _versionRepository;
 
-        public MigrationService(string migrationTopic, IAssemblyService assemblyService, IVersionRepository versionRepository)
+        public MigrationService(string migrationTopic, IVersionRepository versionRepository, IAssemblyService assemblyService)
         {
             _migrationTopic = migrationTopic;
+            _versionRepository = versionRepository;
 
             _assemblyService = assemblyService;
-            _versionRepository = versionRepository;
 
             Log.Logger.Information("Migration Service Initialized{0}{0}Migration Topic: {1}{0}Database Type: {1}{0}{0}============================================================={0}", Environment.NewLine, _migrationTopic,
                 _versionRepository.DatabaseType);
         }
 
-        public MigrationService(string migrationTopic, DatabaseType databaseType)
+        public MigrationService(string migrationTopic, IVersionRepository versionRepository)
         {
             _migrationTopic = migrationTopic;
+            _versionRepository = versionRepository;
 
             _assemblyService = new AssemblyService();
-            _versionRepository = new VersionRepository(databaseType);
 
             Log.Logger.Information("Migration Service Initialized{0}{0}Migration Topic: {1}{0}Database Type: {1}{0}{0}============================================================={0}", Environment.NewLine, _migrationTopic,
                 _versionRepository.DatabaseType);
@@ -45,10 +44,10 @@ namespace Utilitarian.Migrations.Services
         {
             await InitializeVersionTable();
 
-            var records = await _versionRepository.GetMigrationRecords(_migrationTopic);
+            var records = await _versionRepository.GetVersionRecords(_migrationTopic);
 
             var migrations = _assemblyService.GetAllImplementations<Migration>()
-                .Where(m => m.MigrationTopic == _migrationTopic && records.All(r => !r.Version.Equals(m.Version)))
+                .Where(m => records.All(r => !r.Version.Equals(m.Version)))
                 .OrderBy(m => m.Version)
                 .ToList();
 
@@ -63,7 +62,7 @@ namespace Utilitarian.Migrations.Services
                 stopwatch.Restart();
 
                 await migration.MigrateUpPreRelease();
-                await _versionRepository.InsertMigrationRecord(migration.MigrationTopic, migration.Version, migration.Description);
+                await _versionRepository.InsertVersionRecord(migration.MigrationTopic, migration.Version, migration.Description);
 
                 stopwatch.Stop();
 
@@ -75,10 +74,10 @@ namespace Utilitarian.Migrations.Services
         {
             await InitializeVersionTable();
 
-            var records = (await _versionRepository.GetMigrationRecords(_migrationTopic)).ToList();
+            var records = (await _versionRepository.GetVersionRecords(_migrationTopic)).ToList();
 
             var migrations = _assemblyService.GetAllImplementations<Migration>()
-                .Where(m => m.MigrationTopic == _migrationTopic && records.Any(r => r.Version.Equals(m.Version) && r.MigrateUpPostReleaseRan == null))
+                .Where(m => records.Any(r => r.Version.Equals(m.Version) && r.MigrateUpPostReleaseRan == null))
                 .OrderBy(m => m.Version)
                 .ToList();
 
@@ -93,7 +92,7 @@ namespace Utilitarian.Migrations.Services
                 stopwatch.Restart();
 
                 await migration.MigrateUpPostRelease();
-                await _versionRepository.MarkMigrationRecordComplete(migration.MigrationTopic, migration.Version);
+                await _versionRepository.MarkVersionRecordComplete(migration.MigrationTopic, migration.Version);
 
                 stopwatch.Stop();
 
@@ -105,10 +104,10 @@ namespace Utilitarian.Migrations.Services
         {
             await InitializeVersionTable();
 
-            var records = (await _versionRepository.GetMigrationRecords(_migrationTopic)).ToList();
+            var records = (await _versionRepository.GetVersionRecords(_migrationTopic)).ToList();
 
             var migrations = _assemblyService.GetAllImplementations<Migration>()
-                .Where(m => m.MigrationTopic == _migrationTopic && records.Any(r => r.Version.Equals(m.Version) && r.MigrateUpPostReleaseRan != null))
+                .Where(m => records.Any(r => r.Version.Equals(m.Version) && r.MigrateUpPostReleaseRan != null))
                 .OrderBy(m => m.Version)
                 .ToList();
 
@@ -123,7 +122,7 @@ namespace Utilitarian.Migrations.Services
                 stopwatch.Restart();
 
                 await migration.MigrateDownPreRollback();
-                await _versionRepository.MarkMigrationRecordIncomplete(migration.MigrationTopic, migration.Version);
+                await _versionRepository.MarkVersionRecordIncomplete(migration.MigrationTopic, migration.Version);
 
                 stopwatch.Stop();
 
@@ -135,10 +134,10 @@ namespace Utilitarian.Migrations.Services
         {
             await InitializeVersionTable();
 
-            var records = (await _versionRepository.GetMigrationRecords(_migrationTopic)).ToList();
+            var records = (await _versionRepository.GetVersionRecords(_migrationTopic)).ToList();
 
             var migrations = _assemblyService.GetAllImplementations<Migration>()
-                .Where(m => m.MigrationTopic == _migrationTopic && records.Any(r => r.Version.Equals(m.Version) && r.MigrateUpPostReleaseRan == null))
+                .Where(m => records.Any(r => r.Version.Equals(m.Version) && r.MigrateUpPostReleaseRan == null))
                 .OrderBy(m => m.Version)
                 .ToList();
 
@@ -153,7 +152,7 @@ namespace Utilitarian.Migrations.Services
                 stopwatch.Restart();
 
                 await migration.MigrateDownPostRollback();
-                await _versionRepository.DeleteMigrationRecord(migration.MigrationTopic, migration.Version);
+                await _versionRepository.DeleteVersionRecord(migration.MigrationTopic, migration.Version);
 
                 stopwatch.Stop();
 

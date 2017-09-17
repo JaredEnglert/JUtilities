@@ -2,7 +2,7 @@
 
 namespace Utilitarian.Migrations.Models
 {
-    public class MigrationRecord
+    public class VersionRecord
     {
         public string MigrationTopic { get; set; }
 

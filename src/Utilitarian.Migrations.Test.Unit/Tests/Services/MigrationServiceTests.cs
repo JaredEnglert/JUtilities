@@ -36,12 +36,12 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             var versionRepository = GetVersionRepository();
 
             versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
-                .Return(Task.FromResult(new List<MigrationRecord>().AsEnumerable()));
+                .Stub(r => r.GetVersionRecords(Arg<string>.Is.Anything))
+                .Return(Task.FromResult(new List<VersionRecord>().AsEnumerable()));
 
             versionRepository
-                .Stub(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything))
-                .Return(Task.Run(() => { }));
+                .Stub(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything))
+                .Return(Task.FromResult(VersionRecordFactory.Generate()));
 
             var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
 
@@ -50,53 +50,13 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
 
             versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.GetVersionRecords(Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
         }
-
-        [TestMethod]
-        public async Task MigrateUpPreRelease_MigrationWithDifferentTopic_ShoulNotMigrate()
-        {
-            var migration = GetMigration("Different Topic", Version);
-
-            var assemblyService = GetAssemblyService();
-
-            assemblyService
-                .Stub(s => s.GetAllImplementations<Migration>())
-                .Return(new List<Migration> { migration }.AsEnumerable());
-
-            var versionRepository = GetVersionRepository();
-            
-            versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
-                .Return(Task.FromResult(new List<MigrationRecord>().AsEnumerable()));
-
-            versionRepository
-                .Stub(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything))
-                .Return(Task.Run(() => { }));
-
-            var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
-
-            await migrationService.MigrateUpPreRelease();
-
-            assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
-
-            versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-
-            migration.AssertWasNotCalled(m => m.MigrateUpPreRelease());
-            migration.AssertWasNotCalled(m => m.MigrateUpPostRelease());
-            migration.AssertWasNotCalled(m => m.MigrateDownPreRollback());
-            migration.AssertWasNotCalled(m => m.MigrateDownPostRollback());
-        }
-
+        
         [TestMethod]
         public async Task MigrateUpPreRelease_MigrationThatHasAlreadyBeenRan_ShouldNotMigrate()
         {
@@ -111,12 +71,12 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             var versionRepository = GetVersionRepository();
 
             versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
-                .Return(Task.FromResult(new[] { MigrationRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: null) }.AsEnumerable()));
+                .Stub(r => r.GetVersionRecords(Arg<string>.Is.Anything))
+                .Return(Task.FromResult(new[] { VersionRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: null) }.AsEnumerable()));
 
             versionRepository
-                .Stub(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything))
-                .Return(Task.Run(() => { }));
+                .Stub(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything))
+                .Return(Task.FromResult(VersionRecordFactory.Generate()));
 
             var migrationService = GetMigrationService(MigrationTopic, assemblyService, versionRepository);
 
@@ -125,11 +85,11 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
 
             versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.GetVersionRecords(Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
 
             migration.AssertWasNotCalled(m => m.MigrateUpPreRelease());
             migration.AssertWasNotCalled(m => m.MigrateUpPostRelease());
@@ -151,12 +111,12 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             var versionRepository = GetVersionRepository();
 
             versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
-                .Return(Task.FromResult(new List<MigrationRecord>().AsEnumerable()));
+                .Stub(r => r.GetVersionRecords(Arg<string>.Is.Anything))
+                .Return(Task.FromResult(new List<VersionRecord>().AsEnumerable()));
 
             versionRepository
-                .Stub(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything))
-                .Return(Task.Run(() => { }));
+                .Stub(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything))
+                .Return(Task.FromResult(VersionRecordFactory.Generate()));
 
             var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
 
@@ -165,11 +125,11 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
 
             versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.GetVersionRecords(Arg<string>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
 
             migration.AssertWasCalled(m => m.MigrateUpPreRelease());
             migration.AssertWasNotCalled(m => m.MigrateUpPostRelease());
@@ -192,12 +152,12 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             var versionRepository = GetVersionRepository();
 
             versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
-                .Return(Task.FromResult(new List<MigrationRecord>().AsEnumerable()));
+                .Stub(r => r.GetVersionRecords(Arg<string>.Is.Anything))
+                .Return(Task.FromResult(new List<VersionRecord>().AsEnumerable()));
 
             versionRepository
-                .Stub(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything))
-                .Return(Task.Run(() => { }));
+                .Stub(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything))
+                .Return(Task.FromResult(VersionRecordFactory.Generate()));
 
             var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
 
@@ -206,12 +166,12 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
 
             versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Equal(goodMigration.Version), Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Equal(badMigration.Version), Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.GetVersionRecords(Arg<string>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Equal(goodMigration.Version), Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Equal(badMigration.Version), Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
 
             goodMigration.AssertWasCalled(m => m.MigrateUpPreRelease());
             goodMigration.AssertWasNotCalled(m => m.MigrateUpPostRelease());
@@ -240,12 +200,12 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             var versionRepository = GetVersionRepository();
 
             versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
-                .Return(Task.FromResult(new List<MigrationRecord>().AsEnumerable()));
+                .Stub(r => r.GetVersionRecords(Arg<string>.Is.Anything))
+                .Return(Task.FromResult(new List<VersionRecord>().AsEnumerable()));
 
             versionRepository
-                .Stub(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
-                .Return(Task.Run(() => { }));
+                .Stub(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
+                .Return(Task.FromResult(VersionRecordFactory.Generate()));
 
             var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
 
@@ -254,53 +214,13 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
 
             versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.GetVersionRecords(Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
         }
-
-        [TestMethod]
-        public async Task MigrateUpPostRelease_MigrationWithDifferentTopic_ShoulNotMigrate()
-        {
-            var migration = GetMigration("Different Topic", Version);
-
-            var assemblyService = GetAssemblyService();
-
-            assemblyService
-                .Stub(s => s.GetAllImplementations<Migration>())
-                .Return(new List<Migration> { migration }.AsEnumerable());
-
-            var versionRepository = GetVersionRepository();
-
-            versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
-                .Return(Task.FromResult(new[] { MigrationRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: null) }.AsEnumerable()));
-
-            versionRepository
-                .Stub(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
-                .Return(Task.Run(() => { }));
-
-            var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
-
-            await migrationService.MigrateUpPostRelease();
-
-            assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
-
-            versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-
-            migration.AssertWasNotCalled(m => m.MigrateUpPreRelease());
-            migration.AssertWasNotCalled(m => m.MigrateUpPostRelease());
-            migration.AssertWasNotCalled(m => m.MigrateDownPreRollback());
-            migration.AssertWasNotCalled(m => m.MigrateDownPostRollback());
-        }
-
+        
         [TestMethod]
         public async Task MigrateUpPostRelease_MigrationThatHasAlreadyBeenRan_ShouldNotMigrate()
         {
@@ -315,12 +235,12 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             var versionRepository = GetVersionRepository();
 
             versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
-                .Return(Task.FromResult(new[] { MigrationRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: DateTime.UtcNow) }.AsEnumerable()));
+                .Stub(r => r.GetVersionRecords(Arg<string>.Is.Anything))
+                .Return(Task.FromResult(new[] { VersionRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: DateTime.UtcNow) }.AsEnumerable()));
 
             versionRepository
-                .Stub(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
-                .Return(Task.Run(() => { }));
+                .Stub(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
+                .Return(Task.FromResult(VersionRecordFactory.Generate()));
 
             var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
 
@@ -329,11 +249,11 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
 
             versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.GetVersionRecords(Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
 
             migration.AssertWasNotCalled(m => m.MigrateUpPreRelease());
             migration.AssertWasNotCalled(m => m.MigrateUpPostRelease());
@@ -355,12 +275,12 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             var versionRepository = GetVersionRepository();
 
             versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
-                .Return(Task.FromResult(new List<MigrationRecord>().AsEnumerable()));
+                .Stub(r => r.GetVersionRecords(Arg<string>.Is.Anything))
+                .Return(Task.FromResult(new List<VersionRecord>().AsEnumerable()));
 
             versionRepository
-                .Stub(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
-                .Return(Task.Run(() => { }));
+                .Stub(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
+                .Return(Task.FromResult(VersionRecordFactory.Generate()));
 
             var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
 
@@ -369,11 +289,11 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
 
             versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.GetVersionRecords(Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
 
             migration.AssertWasNotCalled(m => m.MigrateUpPreRelease());
             migration.AssertWasNotCalled(m => m.MigrateUpPostRelease());
@@ -395,12 +315,12 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             var versionRepository = GetVersionRepository();
 
             versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
-                .Return(Task.FromResult(new[] { MigrationRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: null) }.AsEnumerable()));
+                .Stub(r => r.GetVersionRecords(Arg<string>.Is.Anything))
+                .Return(Task.FromResult(new[] { VersionRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: null) }.AsEnumerable()));
 
             versionRepository
-                .Stub(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
-                .Return(Task.Run(() => { }));
+                .Stub(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
+                .Return(Task.FromResult(VersionRecordFactory.Generate()));
 
             var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
 
@@ -409,11 +329,11 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
 
             versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.GetVersionRecords(Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
 
             migration.AssertWasNotCalled(m => m.MigrateUpPreRelease());
             migration.AssertWasCalled(m => m.MigrateUpPostRelease());
@@ -436,16 +356,16 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             var versionRepository = GetVersionRepository();
 
             versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
+                .Stub(r => r.GetVersionRecords(Arg<string>.Is.Anything))
                 .Return(Task.FromResult(new[]
                 {
-                    MigrationRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: null),
-                    MigrationRecordFactory.Generate(MigrationTopic, Version + 1, migrateUpPostReleaseRan: null)
+                    VersionRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: null),
+                    VersionRecordFactory.Generate(MigrationTopic, Version + 1, migrateUpPostReleaseRan: null)
                 }.AsEnumerable()));
 
             versionRepository
-                .Stub(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
-                .Return(Task.Run(() => { }));
+                .Stub(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
+                .Return(Task.FromResult(VersionRecordFactory.Generate()));
 
             var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
 
@@ -454,12 +374,12 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
 
             versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Equal(goodMigration.Version)));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Equal(badMigration.Version)));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.GetVersionRecords(Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Equal(goodMigration.Version)));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Equal(badMigration.Version)));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
 
             goodMigration.AssertWasNotCalled(m => m.MigrateUpPreRelease());
             goodMigration.AssertWasCalled(m => m.MigrateUpPostRelease());
@@ -488,12 +408,12 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             var versionRepository = GetVersionRepository();
 
             versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
-                .Return(Task.FromResult(new List<MigrationRecord>().AsEnumerable()));
+                .Stub(r => r.GetVersionRecords(Arg<string>.Is.Anything))
+                .Return(Task.FromResult(new List<VersionRecord>().AsEnumerable()));
 
             versionRepository
-                .Stub(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
-                .Return(Task.Run(() => { }));
+                .Stub(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
+                .Return(Task.FromResult(VersionRecordFactory.Generate()));
 
             var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
 
@@ -502,53 +422,13 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
 
             versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.GetVersionRecords(Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
         }
-
-        [TestMethod]
-        public async Task MigrateDownPreRollback_MigrationWithDifferentTopic_ShoulNotRollback()
-        {
-            var migration = GetMigration("Different Topic", Version);
-
-            var assemblyService = GetAssemblyService();
-
-            assemblyService
-                .Stub(s => s.GetAllImplementations<Migration>())
-                .Return(new List<Migration> { migration }.AsEnumerable());
-
-            var versionRepository = GetVersionRepository();
-
-            versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
-                .Return(Task.FromResult(new[] { MigrationRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: DateTime.UtcNow) }.AsEnumerable()));
-
-            versionRepository
-                .Stub(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
-                .Return(Task.Run(() => { }));
-
-            var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
-
-            await migrationService.MigrateDownPreRollback();
-
-            assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
-
-            versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-
-            migration.AssertWasNotCalled(m => m.MigrateUpPreRelease());
-            migration.AssertWasNotCalled(m => m.MigrateUpPostRelease());
-            migration.AssertWasNotCalled(m => m.MigrateDownPreRollback());
-            migration.AssertWasNotCalled(m => m.MigrateDownPostRollback());
-        }
-
+        
         [TestMethod]
         public async Task MigrateDownPreRollback_MigrationThatHasAlreadyBeenRan_ShouldNotRollback()
         {
@@ -563,12 +443,12 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             var versionRepository = GetVersionRepository();
 
             versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
-                .Return(Task.FromResult(new[] { MigrationRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: null) }.AsEnumerable()));
+                .Stub(r => r.GetVersionRecords(Arg<string>.Is.Anything))
+                .Return(Task.FromResult(new[] { VersionRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: null) }.AsEnumerable()));
 
             versionRepository
-                .Stub(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
-                .Return(Task.Run(() => { }));
+                .Stub(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
+                .Return(Task.FromResult(VersionRecordFactory.Generate()));
 
             var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
 
@@ -577,11 +457,11 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
 
             versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.GetVersionRecords(Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
 
             migration.AssertWasNotCalled(m => m.MigrateUpPreRelease());
             migration.AssertWasNotCalled(m => m.MigrateUpPostRelease());
@@ -603,12 +483,12 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             var versionRepository = GetVersionRepository();
 
             versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
-                .Return(Task.FromResult(new List<MigrationRecord>().AsEnumerable()));
+                .Stub(r => r.GetVersionRecords(Arg<string>.Is.Anything))
+                .Return(Task.FromResult(new List<VersionRecord>().AsEnumerable()));
 
             versionRepository
-                .Stub(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
-                .Return(Task.Run(() => { }));
+                .Stub(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
+                .Return(Task.FromResult(VersionRecordFactory.Generate()));
 
             var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
 
@@ -617,11 +497,11 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
 
             versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.GetVersionRecords(Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
 
             migration.AssertWasNotCalled(m => m.MigrateUpPreRelease());
             migration.AssertWasNotCalled(m => m.MigrateUpPostRelease());
@@ -643,12 +523,12 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             var versionRepository = GetVersionRepository();
 
             versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
-                .Return(Task.FromResult(new[] { MigrationRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: DateTime.UtcNow) }.AsEnumerable()));
+                .Stub(r => r.GetVersionRecords(Arg<string>.Is.Anything))
+                .Return(Task.FromResult(new[] { VersionRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: DateTime.UtcNow) }.AsEnumerable()));
 
             versionRepository
-                .Stub(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
-                .Return(Task.Run(() => { }));
+                .Stub(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
+                .Return(Task.FromResult(VersionRecordFactory.Generate()));
 
             var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
 
@@ -657,11 +537,11 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
 
             versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.GetVersionRecords(Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
 
             migration.AssertWasNotCalled(m => m.MigrateUpPreRelease());
             migration.AssertWasNotCalled(m => m.MigrateUpPostRelease());
@@ -684,16 +564,16 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             var versionRepository = GetVersionRepository();
 
             versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
+                .Stub(r => r.GetVersionRecords(Arg<string>.Is.Anything))
                 .Return(Task.FromResult(new[]
                 {
-                    MigrationRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: DateTime.UtcNow),
-                    MigrationRecordFactory.Generate(MigrationTopic, Version + 1, migrateUpPostReleaseRan: DateTime.UtcNow)
+                    VersionRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: DateTime.UtcNow),
+                    VersionRecordFactory.Generate(MigrationTopic, Version + 1, migrateUpPostReleaseRan: DateTime.UtcNow)
                 }.AsEnumerable()));
 
             versionRepository
-                .Stub(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
-                .Return(Task.Run(() => { }));
+                .Stub(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
+                .Return(Task.FromResult(VersionRecordFactory.Generate()));
 
             var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
 
@@ -702,12 +582,12 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
 
             versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Equal(goodMigration.Version)));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Equal(badMigration.Version)));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.GetVersionRecords(Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Equal(goodMigration.Version)));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Equal(badMigration.Version)));
+            versionRepository.AssertWasNotCalled(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
 
             goodMigration.AssertWasNotCalled(m => m.MigrateUpPreRelease());
             goodMigration.AssertWasNotCalled(m => m.MigrateUpPostRelease());
@@ -736,11 +616,11 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             var versionRepository = GetVersionRepository();
 
             versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
-                .Return(Task.FromResult(new List<MigrationRecord>().AsEnumerable()));
+                .Stub(r => r.GetVersionRecords(Arg<string>.Is.Anything))
+                .Return(Task.FromResult(new List<VersionRecord>().AsEnumerable()));
 
             versionRepository
-                .Stub(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
+                .Stub(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
                 .Return(Task.Run(() => { }));
 
             var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
@@ -750,53 +630,13 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
 
             versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.GetVersionRecords(Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
         }
-
-        [TestMethod]
-        public async Task MigrateDownPostRollback_MigrationWithDifferentTopic_ShoulNotRollback()
-        {
-            var migration = GetMigration("Different Topic", Version);
-
-            var assemblyService = GetAssemblyService();
-
-            assemblyService
-                .Stub(s => s.GetAllImplementations<Migration>())
-                .Return(new List<Migration> { migration }.AsEnumerable());
-
-            var versionRepository = GetVersionRepository();
-
-            versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
-                .Return(Task.FromResult(new[] { MigrationRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: null) }.AsEnumerable()));
-
-            versionRepository
-                .Stub(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
-                .Return(Task.Run(() => { }));
-
-            var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
-
-            await migrationService.MigrateDownPostRollback();
-
-            assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
-
-            versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-
-            migration.AssertWasNotCalled(m => m.MigrateUpPreRelease());
-            migration.AssertWasNotCalled(m => m.MigrateUpPostRelease());
-            migration.AssertWasNotCalled(m => m.MigrateDownPreRollback());
-            migration.AssertWasNotCalled(m => m.MigrateDownPostRollback());
-        }
-
+        
         [TestMethod]
         public async Task MigrateDownPostRollback_NewMigration_ShouldNotRollback()
         {
@@ -811,11 +651,11 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             var versionRepository = GetVersionRepository();
 
             versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
-                .Return(Task.FromResult(new List<MigrationRecord>().AsEnumerable()));
+                .Stub(r => r.GetVersionRecords(Arg<string>.Is.Anything))
+                .Return(Task.FromResult(new List<VersionRecord>().AsEnumerable()));
 
             versionRepository
-                .Stub(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
+                .Stub(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
                 .Return(Task.Run(() => { }));
 
             var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
@@ -825,11 +665,11 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
 
             versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.GetVersionRecords(Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
 
             migration.AssertWasNotCalled(m => m.MigrateUpPreRelease());
             migration.AssertWasNotCalled(m => m.MigrateUpPostRelease());
@@ -851,11 +691,11 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             var versionRepository = GetVersionRepository();
 
             versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
-                .Return(Task.FromResult(new[] { MigrationRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: null) }.AsEnumerable()));
+                .Stub(r => r.GetVersionRecords(Arg<string>.Is.Anything))
+                .Return(Task.FromResult(new[] { VersionRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: null) }.AsEnumerable()));
 
             versionRepository
-                .Stub(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
+                .Stub(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
                 .Return(Task.Run(() => { }));
 
             var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
@@ -865,11 +705,11 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
 
             versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.GetVersionRecords(Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
 
             migration.AssertWasNotCalled(m => m.MigrateUpPreRelease());
             migration.AssertWasNotCalled(m => m.MigrateUpPostRelease());
@@ -892,15 +732,15 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             var versionRepository = GetVersionRepository();
 
             versionRepository
-                .Stub(r => r.GetMigrationRecords(Arg<string>.Is.Anything))
+                .Stub(r => r.GetVersionRecords(Arg<string>.Is.Anything))
                 .Return(Task.FromResult(new[]
                 {
-                    MigrationRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: null),
-                    MigrationRecordFactory.Generate(MigrationTopic, Version + 1, migrateUpPostReleaseRan: null)
+                    VersionRecordFactory.Generate(MigrationTopic, Version, migrateUpPostReleaseRan: null),
+                    VersionRecordFactory.Generate(MigrationTopic, Version + 1, migrateUpPostReleaseRan: null)
                 }.AsEnumerable()));
 
             versionRepository
-                .Stub(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
+                .Stub(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything))
                 .Return(Task.Run(() => { }));
 
             var migrationService = GetMigrationService(MigrationTopic, assemblyService: assemblyService, versionRepository: versionRepository);
@@ -910,12 +750,12 @@ namespace Utilitarian.Migrations.Test.Unit.Tests.Services
             assemblyService.AssertWasCalled(s => s.GetAllImplementations<Migration>());
 
             versionRepository.AssertWasCalled(r => r.InitializeVersionTable());
-            versionRepository.AssertWasCalled(r => r.GetMigrationRecords(Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.InsertMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasNotCalled(r => r.MarkMigrationRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
-            versionRepository.AssertWasCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Equal(goodMigration.Version)));
-            versionRepository.AssertWasNotCalled(r => r.DeleteMigrationRecord(Arg<string>.Is.Anything, Arg<double>.Is.Equal(badMigration.Version)));
+            versionRepository.AssertWasCalled(r => r.GetVersionRecords(Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.InsertVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Anything, Arg<string>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordComplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasNotCalled(r => r.MarkVersionRecordIncomplete(Arg<string>.Is.Anything, Arg<double>.Is.Anything));
+            versionRepository.AssertWasCalled(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Equal(goodMigration.Version)));
+            versionRepository.AssertWasNotCalled(r => r.DeleteVersionRecord(Arg<string>.Is.Anything, Arg<double>.Is.Equal(badMigration.Version)));
 
             goodMigration.AssertWasNotCalled(m => m.MigrateUpPreRelease());
             goodMigration.AssertWasNotCalled(m => m.MigrateUpPostRelease());

@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DAF50E05-D916-4D58-A50A-B6626CD58BB6}</ProjectGuid>
+    <ProjectGuid>{4DBE61C8-090A-4056-8D90-EAF18D49CDA0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Utilitarian.Migrations</RootNamespace>
-    <AssemblyName>Utilitarian.Migrations</AssemblyName>
+    <RootNamespace>Utilitarian.Data.MongoDB</RootNamespace>
+    <AssemblyName>Utilitarian.Data.MongoDB</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,6 +30,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FluentAssertions, Version=4.19.4.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentAssertions.4.19.4\lib\net45\FluentAssertions.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentAssertions.Core, Version=4.19.4.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentAssertions.4.19.4\lib\net45\FluentAssertions.Core.dll</HintPath>
+    </Reference>
     <Reference Include="MongoDB.Bson, Version=2.4.4.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MongoDB.Bson.2.4.4\lib\net45\MongoDB.Bson.dll</HintPath>
     </Reference>
@@ -39,8 +45,8 @@
     <Reference Include="MongoDB.Driver.Core, Version=2.4.4.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MongoDB.Driver.Core.2.4.4\lib\net45\MongoDB.Driver.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Serilog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
-      <HintPath>..\packages\Serilog.2.5.0\lib\net46\Serilog.dll</HintPath>
+    <Reference Include="Rhino.Mocks, Version=3.6.0.0, Culture=neutral, PublicKeyToken=0b3305902db7183f, processorArchitecture=MSIL">
+      <HintPath>..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -55,35 +61,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Interfaces\IMigrationService.cs" />
-    <Compile Include="Interfaces\IVersionRepository.cs" />
-    <Compile Include="Models\Migration.cs" />
-    <Compile Include="Models\MongoDbVersionRecord.cs" />
-    <Compile Include="Models\VersionRecord.cs" />
+    <Compile Include="MongoDbClientFactory.cs" />
+    <Compile Include="MongoDbRepositoryBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repositories\MongoVersionRepository.cs" />
-    <Compile Include="Services\MigrationService.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Utilitarian.Assemblies\Utilitarian.Assemblies.csproj">
-      <Project>{AA370114-EC04-4622-AAEA-A761FB511906}</Project>
-      <Name>Utilitarian.Assemblies</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Utilitarian.Data.MongoDB\Utilitarian.Data.MongoDB.csproj">
-      <Project>{4DBE61C8-090A-4056-8D90-EAF18D49CDA0}</Project>
-      <Name>Utilitarian.Data.MongoDB</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Utilitarian.Extensions\Utilitarian.Extensions.csproj">
-      <Project>{05291AD2-5A85-4073-AA58-36F035B0F75E}</Project>
-      <Name>Utilitarian.Extensions</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Utilitarian.Settings\Utilitarian.Settings.csproj">
       <Project>{203F2B50-C86E-4B15-AD0D-5F5860ADA816}</Project>
       <Name>Utilitarian.Settings</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

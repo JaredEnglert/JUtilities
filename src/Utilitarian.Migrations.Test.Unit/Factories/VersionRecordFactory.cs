@@ -3,12 +3,12 @@ using Utilitarian.Migrations.Models;
 
 namespace Utilitarian.Migrations.Test.Unit.Factories
 {
-    public static class MigrationRecordFactory
+    public static class VersionRecordFactory
     {
-        public static MigrationRecord Generate(string migrationTopic = "MigrationTopic", double version = 1234, string description = "Description",
+        public static VersionRecord Generate(string migrationTopic = "MigrationTopic", double version = 1234, string description = "Description",
             DateTime? migrateUpPreReleaseRan = null, DateTime? migrateUpPostReleaseRan = null)
         {
-            return new MigrationRecord
+            return new VersionRecord
             {
                 MigrationTopic = migrationTopic,
                 Version = version,
