@@ -1,58 +1,61 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MongoDB.Driver;
-using Rhino.Mocks;
 using Utilitarian.Migrations.Models;
-using Utilitarian.Migrations.Repositories;
+using Utilitarian.Migrations.Repositories.MongoDb;
 using Utilitarian.Migrations.Test.Integration.Factories;
 using Utilitarian.Settings;
+
+// ReSharper disable CompareOfFloatsByEqualityOperator
+// ReSharper disable PossibleMultipleEnumeration
 
 namespace Utilitarian.Migrations.Test.Integration.Repositories
 {
     [TestClass]
     public class MongoDbVersionRepositoryTests
     {
-        private const string DatabaseName = "MongoDbVersionRepositoryIntegrationTest";
+        private const string DatabaseName = "Mongo";
 
         private const string MigrationTopic = "MigrationTopic";
 
-        private MongoVersionRepository mongoVersionRepository;
+        private MongoDbVersionRepository _mongoDbVersionRepository;
 
-        #region TestInitialize Setup
+        #region TestInitialize and TestCleanup
 
         [TestInitialize]
         public void TestInitialize()
         {
-            mongoVersionRepository = GetMongoVersionRepository();
+            _mongoDbVersionRepository = GetMongoDbVersionRepository();
         }
 
         [TestCleanup]
         public async Task TestCleanup()
         {
-            var exists = await mongoVersionRepository.DatabaseExists();
+            var exists = await _mongoDbVersionRepository.DatabaseExists();
 
-            if (exists) mongoVersionRepository.MongoClient.DropDatabase(DatabaseName);
+            if (exists) _mongoDbVersionRepository.MongoClient.DropDatabase(DatabaseName);
 
-            mongoVersionRepository = null;
+            _mongoDbVersionRepository = null;
         }
 
-        #endregion TestInitialize Setup
+        #endregion TestInitialize and TestCleanup
 
         #region InitializeVersionTable Method
 
         [TestMethod]
         public async Task InitializeVersionTable_ShouldExecute()
         {
-            await mongoVersionRepository.InitializeVersionTable();
+            await _mongoDbVersionRepository.InitializeVersionTable();
         }
 
         [TestMethod]
         public async Task InitializeVersionTable_CallMoreThanOnce_ShouldExecute()
         {
-            await mongoVersionRepository.InitializeVersionTable();
-            await mongoVersionRepository.InitializeVersionTable();
+            await _mongoDbVersionRepository.InitializeVersionTable();
+            await _mongoDbVersionRepository.InitializeVersionTable();
         }
 
         #endregion InitializeVersionTable Method
@@ -62,7 +65,7 @@ namespace Utilitarian.Migrations.Test.Integration.Repositories
         [TestMethod]
         public async Task GetMigrationRecords_NoRecords_ShouldReturnNoRecords()
         {
-            var migrationRecords = await mongoVersionRepository.GetVersionRecords(MigrationTopic);
+            var migrationRecords = await _mongoDbVersionRepository.GetVersionRecords(MigrationTopic);
 
             migrationRecords.Should().NotBeNull();
             migrationRecords.Any().Should().BeFalse();
@@ -73,10 +76,10 @@ namespace Utilitarian.Migrations.Test.Integration.Repositories
         {
             await LoadRecord(MongoDbVersionRecordFactory.Generate(MigrationTopic, 1));
             await LoadRecord(MongoDbVersionRecordFactory.Generate(MigrationTopic, 2));
-            await LoadRecord(MongoDbVersionRecordFactory.Generate("NotThe" + MigrationTopic, 3));
+            await LoadRecord(MongoDbVersionRecordFactory.Generate("NotThe" + MigrationTopic, 1));
             await LoadRecord(MongoDbVersionRecordFactory.Generate("NotThe" + MigrationTopic, 4));
 
-            var migrationRecords = await mongoVersionRepository.GetVersionRecords(MigrationTopic);
+            var migrationRecords = await _mongoDbVersionRepository.GetVersionRecords(MigrationTopic);
 
             migrationRecords.Should().NotBeNull();
             migrationRecords.Count().Should().Be(2);
@@ -91,9 +94,9 @@ namespace Utilitarian.Migrations.Test.Integration.Repositories
         [TestMethod]
         public async Task InsertVersionRecord_ShouldInsertRecord()
         {
-            var versionRecord = await mongoVersionRepository.InsertVersionRecord(MigrationTopic, 1, "Description");
+            var versionRecord = await _mongoDbVersionRepository.InsertVersionRecord(MigrationTopic, 1, "Description");
 
-            var migrationRecords = await mongoVersionRepository.GetVersionRecords(MigrationTopic);
+            var migrationRecords = await _mongoDbVersionRepository.GetVersionRecords(MigrationTopic);
 
             migrationRecords.Should().NotBeNull();
             migrationRecords.Count().Should().Be(1);
@@ -106,22 +109,81 @@ namespace Utilitarian.Migrations.Test.Integration.Repositories
 
         #endregion InsertVersionRecord Method
 
+        #region MarkVersionRecordComplete Method
+
+        [TestMethod]
+        public async Task MarkVersionRecordComplete_ShouldCorrectRecordComplete()
+        {
+            await LoadRecord(MongoDbVersionRecordFactory.Generate(MigrationTopic, 1));
+            await LoadRecord(MongoDbVersionRecordFactory.Generate(MigrationTopic, 2));
+            await LoadRecord(MongoDbVersionRecordFactory.Generate("NotThe" + MigrationTopic, 1));
+
+            await _mongoDbVersionRepository.MarkVersionRecordComplete(MigrationTopic, 1);
+
+            var versionRecords = (await _mongoDbVersionRepository.GetVersionRecords(MigrationTopic)).ToList();
+            var otherVersionRecords = (await _mongoDbVersionRepository.GetVersionRecords("NotThe" + MigrationTopic)).ToList();
+
+            versionRecords.Single(r => r.MigrationTopic == MigrationTopic && r.Version == 1).MigrateUpPostReleaseRan.Should().NotBeNull();
+            versionRecords.Single(r => r.MigrationTopic == MigrationTopic && r.Version == 2).MigrateUpPostReleaseRan.Should().BeNull();
+            otherVersionRecords.Single(r => r.MigrationTopic != MigrationTopic && r.Version == 1).MigrateUpPostReleaseRan.Should().BeNull();
+        }
+
+        #endregion MarkVersionRecordComplete Method
+
+        #region MarkVersionRecordIncomplete Method
+
+        [TestMethod]
+        public async Task MarkVersionRecordIncomplete_ShouldCorrectRecordComplete()
+        {
+            await LoadRecord(MongoDbVersionRecordFactory.Generate(MigrationTopic, 1, migrateUpPostReleaseRan: DateTime.UtcNow));
+            await LoadRecord(MongoDbVersionRecordFactory.Generate(MigrationTopic, 2, migrateUpPostReleaseRan: DateTime.UtcNow));
+            await LoadRecord(MongoDbVersionRecordFactory.Generate("NotThe" + MigrationTopic, 1, migrateUpPostReleaseRan: DateTime.UtcNow));
+
+            await _mongoDbVersionRepository.MarkVersionRecordIncomplete(MigrationTopic, 1);
+
+            var versionRecords = (await _mongoDbVersionRepository.GetVersionRecords(MigrationTopic)).ToList();
+            var otherVersionRecords = (await _mongoDbVersionRepository.GetVersionRecords("NotThe" + MigrationTopic)).ToList();
+
+            versionRecords.Single(r => r.MigrationTopic == MigrationTopic && r.Version == 1).MigrateUpPostReleaseRan.Should().BeNull();
+            versionRecords.Single(r => r.MigrationTopic == MigrationTopic && r.Version == 2).MigrateUpPostReleaseRan.Should().NotBeNull();
+            otherVersionRecords.Single(r => r.MigrationTopic != MigrationTopic && r.Version == 1).MigrateUpPostReleaseRan.Should().NotBeNull();
+        }
+
+        #endregion MarkVersionRecordIncomplete Method
+
+        #region DeleteVersionRecord Method
+
+        [TestMethod]
+        public async Task DeleteVersionRecord_ShouldCorrectRecord()
+        {
+            await LoadRecord(MongoDbVersionRecordFactory.Generate(MigrationTopic, 1));
+            await LoadRecord(MongoDbVersionRecordFactory.Generate(MigrationTopic, 2));
+            await LoadRecord(MongoDbVersionRecordFactory.Generate("NotThe" + MigrationTopic, 1));
+
+            await _mongoDbVersionRepository.DeleteVersionRecord(MigrationTopic, 1);
+
+            var versionRecords = (await _mongoDbVersionRepository.GetVersionRecords(MigrationTopic)).ToList();
+            var otherVersionRecords = (await _mongoDbVersionRepository.GetVersionRecords("NotThe" + MigrationTopic)).ToList();
+
+            versionRecords.SingleOrDefault(r => r.MigrationTopic == MigrationTopic && r.Version == 1).Should().BeNull();
+            versionRecords.SingleOrDefault(r => r.MigrationTopic == MigrationTopic && r.Version == 2).Should().NotBeNull();
+            otherVersionRecords.SingleOrDefault(r => r.MigrationTopic != MigrationTopic && r.Version == 1).Should().NotBeNull();
+        }
+
+        #endregion DeleteVersionRecord Method
+
         #region Private Methods
 
-        private static MongoVersionRepository GetMongoVersionRepository(IConnectionStringProvider connectionStringProvider = null)
+        private static MongoDbVersionRepository GetMongoDbVersionRepository(IConnectionStringProvider connectionStringProvider = null)
         {
             if (connectionStringProvider == null) connectionStringProvider = GetConnectionStringProvider();
 
-            return new MongoVersionRepository(DatabaseName, connectionStringProvider);
+            return new MongoDbVersionRepository($"{DatabaseName}{Guid.NewGuid()}".Replace("-", string.Empty), connectionStringProvider.Get(DatabaseName));
         }
 
         private static IConnectionStringProvider GetConnectionStringProvider()
         {
-            var connectionStringProvider = MockRepository.GenerateMock<IConnectionStringProvider>();
-
-            connectionStringProvider.Stub(p => p.Get(DatabaseName)).Return("mongodb://localhost:27017");
-
-            return connectionStringProvider;
+            return new AppSettingsConnectionStringProvider();
         }
 
         private async Task LoadRecord(MongoDbVersionRecord mongoDbVersionRecord, bool isUpsert = true)
@@ -129,7 +191,7 @@ namespace Utilitarian.Migrations.Test.Integration.Repositories
             var filter = Builders<MongoDbVersionRecord>.Filter.Eq(r => r.Id, mongoDbVersionRecord.Id);
             var options = new FindOneAndReplaceOptions<MongoDbVersionRecord, MongoDbVersionRecord> {IsUpsert = isUpsert};
 
-            await mongoVersionRepository.VersionRecords.FindOneAndReplaceAsync(filter, mongoDbVersionRecord, options);
+            await _mongoDbVersionRepository.VersionRecords.FindOneAndReplaceAsync(filter, mongoDbVersionRecord, options);
         }
 
         #endregion Private Methods

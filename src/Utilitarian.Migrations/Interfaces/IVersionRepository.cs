@@ -14,9 +14,9 @@ namespace Utilitarian.Migrations.Interfaces
 
         Task<VersionRecord> InsertVersionRecord(string migrationTopic, double version, string description);
 
-        Task<VersionRecord> MarkVersionRecordComplete(string migrationTopic, double version);
+        Task MarkVersionRecordComplete(string migrationTopic, double version);
 
-        Task<VersionRecord> MarkVersionRecordIncomplete(string migrationTopic, double version);
+        Task MarkVersionRecordIncomplete(string migrationTopic, double version);
 
         Task DeleteVersionRecord(string migrationTopic, double version);
     }

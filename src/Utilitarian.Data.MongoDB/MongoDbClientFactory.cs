@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using MongoDB.Driver;
-using Utilitarian.Settings;
 
 namespace Utilitarian.Data.MongoDB
 {
@@ -13,14 +12,14 @@ namespace Utilitarian.Data.MongoDB
             MongoClients = new ConcurrentDictionary<string, MongoClient>();
         }
 
-        public static MongoClient GetMongoClient(string databaseName, IConnectionStringProvider connectionStringProvider)
+        public static MongoClient GetMongoClient(string databaseName, string connectionString)
         {
             MongoClient mongoClient;
             MongoClients.TryGetValue(databaseName, out mongoClient);
 
             if (mongoClient != null) return mongoClient;
 
-            mongoClient = new MongoClient(connectionStringProvider.Get(databaseName));
+            mongoClient = new MongoClient(connectionString);
 
             MongoClients.TryAdd(databaseName, mongoClient);
 

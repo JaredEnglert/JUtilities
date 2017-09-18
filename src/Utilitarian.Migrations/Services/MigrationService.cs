@@ -25,8 +25,8 @@ namespace Utilitarian.Migrations.Services
 
             _assemblyService = assemblyService;
 
-            Log.Logger.Information("Migration Service Initialized{0}{0}Migration Topic: {1}{0}Database Type: {1}{0}{0}============================================================={0}", Environment.NewLine, _migrationTopic,
-                _versionRepository.DatabaseType);
+            Log.Logger.Information("Migration Service Initialized{0}{0}Migration Topic: {1}{0}Database Type: {1}{0}{0}============================================================={0}", 
+                Environment.NewLine, _migrationTopic, _versionRepository.DatabaseType);
         }
 
         public MigrationService(string migrationTopic, IVersionRepository versionRepository)
@@ -36,8 +36,8 @@ namespace Utilitarian.Migrations.Services
 
             _assemblyService = new AssemblyService();
 
-            Log.Logger.Information("Migration Service Initialized{0}{0}Migration Topic: {1}{0}Database Type: {1}{0}{0}============================================================={0}", Environment.NewLine, _migrationTopic,
-                _versionRepository.DatabaseType);
+            Log.Logger.Information("Migration Service Initialized{0}{0}Migration Topic: {1}{0}Database Type: {1}{0}{0}============================================================={0}", 
+                Environment.NewLine, _migrationTopic, _versionRepository.DatabaseType);
         }
 
         public async Task MigrateUpPreRelease(IEnumerable<double> versions = null)

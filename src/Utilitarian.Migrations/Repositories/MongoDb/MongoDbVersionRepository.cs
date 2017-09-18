@@ -6,18 +6,17 @@ using MongoDB.Driver;
 using Utilitarian.Data.MongoDB;
 using Utilitarian.Migrations.Interfaces;
 using Utilitarian.Migrations.Models;
-using Utilitarian.Settings;
 
-namespace Utilitarian.Migrations.Repositories
+namespace Utilitarian.Migrations.Repositories.MongoDb
 {
-    public class MongoVersionRepository : MongoDbRepositoryBase, IVersionRepository
+    public class MongoDbVersionRepository : MongoDbRepositoryBase, IVersionRepository
     {
         public string DatabaseType => "MongoDb";
 
         public IMongoCollection<MongoDbVersionRecord> VersionRecords => GetCollection<MongoDbVersionRecord>("versionRecords");
 
-        public MongoVersionRepository(string databaseName, IConnectionStringProvider connectionStringProvider)
-            : base(databaseName, connectionStringProvider)
+        public MongoDbVersionRepository(string databaseName, string connectionString)
+            : base(databaseName, connectionString)
         {
         }
 
@@ -47,22 +46,34 @@ namespace Utilitarian.Migrations.Repositories
             return versionRecord;
         }
 
-        public async Task<VersionRecord> MarkVersionRecordComplete(string migrationTopic, double version)
+        public async Task MarkVersionRecordComplete(string migrationTopic, double version)
         {
-            await Task.Run(() => { });
-            throw new System.NotImplementedException();
+            var filter = Builders<MongoDbVersionRecord>.Filter
+                .Where(r => r.MigrationTopic == migrationTopic && r.Version == version);
+            
+            var update = new UpdateDefinitionBuilder<MongoDbVersionRecord>()
+                .Set(r => r.MigrateUpPostReleaseRan, DateTime.UtcNow);
+
+            await VersionRecords.UpdateOneAsync(filter, update);
         }
 
-        public async Task<VersionRecord> MarkVersionRecordIncomplete(string migrationTopic, double version)
+        public async Task MarkVersionRecordIncomplete(string migrationTopic, double version)
         {
-            await Task.Run(() => { });
-            throw new System.NotImplementedException();
+            var filter = Builders<MongoDbVersionRecord>.Filter
+                .Where(r => r.MigrationTopic == migrationTopic && r.Version == version);
+
+            var update = new UpdateDefinitionBuilder<MongoDbVersionRecord>()
+                .Set(r => r.MigrateUpPostReleaseRan, null);
+
+            await VersionRecords.UpdateOneAsync(filter, update);
         }
 
         public async Task DeleteVersionRecord(string migrationTopic, double version)
         {
-            await Task.Run(() => { });
-            throw new System.NotImplementedException();
+            var filter = Builders<MongoDbVersionRecord>.Filter
+                .Where(r => r.MigrationTopic == migrationTopic && r.Version == version);
+
+            await VersionRecords.DeleteOneAsync(filter);
         }
     }
 }

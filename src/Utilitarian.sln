@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilitarian.Settings", "Utilitarian.Settings\Utilitarian.Settings.csproj", "{203F2B50-C86E-4B15-AD0D-5F5860ADA816}"
 EndProject
@@ -38,6 +38,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilitarian.Migrations.Test.Integration", "Utilitarian.Migrations.Test.Integration\Utilitarian.Migrations.Test.Integration.csproj", "{A2717884-CE17-4321-AF2F-965E5A73C930}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilitarian.Data.MongoDB", "Utilitarian.Data.MongoDB\Utilitarian.Data.MongoDB.csproj", "{4DBE61C8-090A-4056-8D90-EAF18D49CDA0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilitarian.Data.MongoDB.Test.Integration", "Utilitarian.Data.MongoDB.Test.Integration\Utilitarian.Data.MongoDB.Test.Integration.csproj", "{C1845347-F7B1-40F2-95AB-1EE7545F7302}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -117,6 +119,10 @@ Global
 		{4DBE61C8-090A-4056-8D90-EAF18D49CDA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4DBE61C8-090A-4056-8D90-EAF18D49CDA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4DBE61C8-090A-4056-8D90-EAF18D49CDA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1845347-F7B1-40F2-95AB-1EE7545F7302}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1845347-F7B1-40F2-95AB-1EE7545F7302}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1845347-F7B1-40F2-95AB-1EE7545F7302}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1845347-F7B1-40F2-95AB-1EE7545F7302}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

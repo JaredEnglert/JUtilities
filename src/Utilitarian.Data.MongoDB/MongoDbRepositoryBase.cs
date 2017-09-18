@@ -1,22 +1,21 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Driver;
-using Utilitarian.Settings;
 
 namespace Utilitarian.Data.MongoDB
 {
     public abstract class MongoDbRepositoryBase
     {
-        private readonly IConnectionStringProvider _connectionStringProvider;
+        private readonly string _connectionString;
 
         public string DatabaseName { get; }
 
-        public MongoClient MongoClient => MongoDbClientFactory.GetMongoClient(DatabaseName, _connectionStringProvider);
+        public MongoClient MongoClient => MongoDbClientFactory.GetMongoClient(DatabaseName, _connectionString);
 
-        protected MongoDbRepositoryBase(string databaseName, IConnectionStringProvider connectionStringProvider)
+        protected MongoDbRepositoryBase(string databaseName, string connectionString)
         {
             DatabaseName = databaseName;
-            _connectionStringProvider = connectionStringProvider;
+            _connectionString = connectionString;
         }
 
         protected IMongoDatabase GetDatabase()

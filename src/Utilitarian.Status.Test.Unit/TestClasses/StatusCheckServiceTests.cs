@@ -12,21 +12,21 @@ namespace Utilitarian.Status.Test.Unit.TestClasses
     [TestClass]
     public class StatusCheckServiceTests
     {
-        private IStatusCheck goodStatusCheck;
+        private IStatusCheck _goodStatusCheck;
 
-        private IStatusCheck badStatusCheck;
+        private IStatusCheck _badStatusCheck;
 
-        private IStatusCheck timeoutStatusCheck;
+        private IStatusCheck _timeoutStatusCheck;
 
-        private IStatusCheck databaseStatusCheck;
+        private IStatusCheck _databaseStatusCheck;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            goodStatusCheck = new GoodStatusCheck();
-            badStatusCheck = new BadStatusCheck();
-            timeoutStatusCheck = new TimeoutStatusCheck(GetSettingsProvider());
-            databaseStatusCheck = new DatabaseStatusCheck(GetConnectionStringProvider());
+            _goodStatusCheck = new GoodStatusCheck();
+            _badStatusCheck = new BadStatusCheck();
+            _timeoutStatusCheck = new TimeoutStatusCheck(GetSettingsProvider());
+            _databaseStatusCheck = new DatabaseStatusCheck(GetConnectionStringProvider());
         }
 
         #region GetStatus Method
@@ -40,37 +40,37 @@ namespace Utilitarian.Status.Test.Unit.TestClasses
         [TestMethod]
         public void GetStatus_DoesExist_ShouldReturnStatus()
         {
-            GetStatusCheckService(new[] { goodStatusCheck }).GetStatus(typeof(GoodStatusCheck)).Should().NotBeNull();
+            GetStatusCheckService(new[] { _goodStatusCheck }).GetStatus(typeof(GoodStatusCheck)).Should().NotBeNull();
         }
 
         [TestMethod]
         public void GetStatus_ValidStatus_ShouldReturnTrue()
         {
-            GetStatusCheckService(new [] { goodStatusCheck }).GetStatus(typeof(GoodStatusCheck)).IsActive.Should().BeTrue();
+            GetStatusCheckService(new [] { _goodStatusCheck }).GetStatus(typeof(GoodStatusCheck)).IsActive.Should().BeTrue();
         }
 
         [TestMethod]
         public void GetStatus_InvalidStatus_ShouldReturnFalse()
         {
-            GetStatusCheckService(new[] { badStatusCheck }).GetStatus(typeof(BadStatusCheck)).IsActive.Should().BeFalse();
+            GetStatusCheckService(new[] { _badStatusCheck }).GetStatus(typeof(BadStatusCheck)).IsActive.Should().BeFalse();
         }
 
         [TestMethod]
         public void GetStatus_InvalidStatus_ShouldReturnException()
         {
-            GetStatusCheckService(new[] { badStatusCheck }).GetStatus(typeof(BadStatusCheck)).Exception.Should().NotBeNull();
+            GetStatusCheckService(new[] { _badStatusCheck }).GetStatus(typeof(BadStatusCheck)).Exception.Should().NotBeNull();
         }
 
         [TestMethod]
         public void GetStatus_TimeoutIsHit_ShouldReturnFalse()
         {
-            GetStatusCheckService(new[] { timeoutStatusCheck }).GetStatus(typeof(TimeoutStatusCheck)).IsActive.Should().BeFalse();
+            GetStatusCheckService(new[] { _timeoutStatusCheck }).GetStatus(typeof(TimeoutStatusCheck)).IsActive.Should().BeFalse();
         }
 
         [TestMethod]
         public void GetStatus_DatabaseDoesNotExist_ShouldReturnFalse()
         {
-            GetStatusCheckService(new[] { databaseStatusCheck }).GetStatus(typeof(DatabaseStatusCheck)).IsActive.Should().BeFalse();
+            GetStatusCheckService(new[] { _databaseStatusCheck }).GetStatus(typeof(DatabaseStatusCheck)).IsActive.Should().BeFalse();
         }
 
         #endregion GetStatus Method
@@ -90,7 +90,7 @@ namespace Utilitarian.Status.Test.Unit.TestClasses
         [TestMethod]
         public void ForceUpdate_ShouldUpdateLastUpdatedUtc()
         {
-            var statusCheckService = GetStatusCheckService(new[] { goodStatusCheck });
+            var statusCheckService = GetStatusCheckService(new[] { _goodStatusCheck });
             var initialLastUpdatedUtc = statusCheckService.LastUpdatedUtc;
 
             statusCheckService.ForceUpdate();
@@ -101,7 +101,7 @@ namespace Utilitarian.Status.Test.Unit.TestClasses
         [TestMethod]
         public void ForceUpdate_ShouldUpdateLastUpdatedUtcOnStatus()
         {
-            var statusCheckService = GetStatusCheckService(new[] { goodStatusCheck });
+            var statusCheckService = GetStatusCheckService(new[] { _goodStatusCheck });
             var initialLastUpdatedUtc = statusCheckService.GetStatus(typeof(GoodStatusCheck)).LastUpdatedUtc;
 
             statusCheckService.ForceUpdate();
@@ -112,7 +112,7 @@ namespace Utilitarian.Status.Test.Unit.TestClasses
         [TestMethod]
         public async Task ForceUpdate_ShouldContinueToPollAfterForceUpdate()
         {
-            var statusCheckService = GetStatusCheckService(new[] { goodStatusCheck });
+            var statusCheckService = GetStatusCheckService(new[] { _goodStatusCheck });
             statusCheckService.GetStatus(typeof(GoodStatusCheck));
 
             statusCheckService.ForceUpdate();
@@ -134,10 +134,10 @@ namespace Utilitarian.Status.Test.Unit.TestClasses
 
             return new StatusCheckService(settingsProvider, statusChecks ?? new[]
             {
-                goodStatusCheck,
-                badStatusCheck,
-                timeoutStatusCheck,
-                databaseStatusCheck
+                _goodStatusCheck,
+                _badStatusCheck,
+                _timeoutStatusCheck,
+                _databaseStatusCheck
             });
         }
 
