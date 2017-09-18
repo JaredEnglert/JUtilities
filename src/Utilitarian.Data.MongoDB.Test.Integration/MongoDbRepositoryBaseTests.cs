@@ -9,24 +9,24 @@ namespace Utilitarian.Data.MongoDB.Test.Integration
     [TestClass]
     public class MongoDbRepositoryBaseTests
     {
-        private TestMongoDbRepositoryBase _testMongoDbRepositoryBase;
+        private MockMongoDbRepositoryBase _mockMongoDbRepositoryBase;
 
         #region TestInitialize and TestCleanup
 
         [TestInitialize]
         public void TestInitialize()
         {
-            _testMongoDbRepositoryBase = GetTestMongoDbRepositoryBase();
+            _mockMongoDbRepositoryBase = GetMockMongoDbRepositoryBase();
         }
 
         [TestCleanup]
         public async Task TestCleanup()
         {
-            var exists = await _testMongoDbRepositoryBase.DatabaseExists();
+            var exists = await _mockMongoDbRepositoryBase.DatabaseExists();
 
-            if (exists) _testMongoDbRepositoryBase.MongoClient.DropDatabase(_testMongoDbRepositoryBase.DatabaseName);
+            if (exists) _mockMongoDbRepositoryBase.MongoClient.DropDatabase(_mockMongoDbRepositoryBase.DatabaseName);
 
-            _testMongoDbRepositoryBase = null;
+            _mockMongoDbRepositoryBase = null;
         }
 
         #endregion TestInitialize and TestCleanup
@@ -36,7 +36,7 @@ namespace Utilitarian.Data.MongoDB.Test.Integration
         [TestMethod]
         public async Task DatabaseExists_NoDatabase_ShouldReturnFalse()
         {
-            var exists = await _testMongoDbRepositoryBase.DatabaseExists();
+            var exists = await _mockMongoDbRepositoryBase.DatabaseExists();
 
             exists.Should().BeFalse();
         }
@@ -44,13 +44,13 @@ namespace Utilitarian.Data.MongoDB.Test.Integration
         [TestMethod]
         public async Task DatabaseExists_DatabaseExists_ShouldReturnTrue()
         {
-            var client = _testMongoDbRepositoryBase.MongoClient;
-            var database = client.GetDatabase(_testMongoDbRepositoryBase.DatabaseName);
+            var client = _mockMongoDbRepositoryBase.MongoClient;
+            var database = client.GetDatabase(_mockMongoDbRepositoryBase.DatabaseName);
             var collection = database.GetCollection<TestClass>("testCollection");
 
             await collection.InsertOneAsync(new TestClass());
 
-            var exists = await _testMongoDbRepositoryBase.DatabaseExists();
+            var exists = await _mockMongoDbRepositoryBase.DatabaseExists();
 
             exists.Should().BeTrue();
         }
@@ -59,9 +59,9 @@ namespace Utilitarian.Data.MongoDB.Test.Integration
 
         #region Private Method
 
-        private static TestMongoDbRepositoryBase GetTestMongoDbRepositoryBase()
+        private static MockMongoDbRepositoryBase GetMockMongoDbRepositoryBase()
         {
-            return new TestMongoDbRepositoryBase();
+            return new MockMongoDbRepositoryBase();
         }
 
         #endregion Private Method
