@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilitarian.Settings", "Utilitarian.Settings\Utilitarian.Settings.csproj", "{203F2B50-C86E-4B15-AD0D-5F5860ADA816}"
 EndProject
@@ -26,6 +26,20 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilitarian.FeatureToggles", "Utilitarian.FeatureToggles\Utilitarian.FeatureToggles.csproj", "{A8014048-ADCF-4411-A75C-D1FAB805F7FE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilitarian.FeatureToggles.Test.Unit", "Utilitarian.FeatureToggles.Test.Unit\Utilitarian.FeatureToggles.Test.Unit.csproj", "{5079E3D2-7761-4460-9C68-28CF02EA8ED2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilitarian.Migrations", "Utilitarian.Migrations\Utilitarian.Migrations.csproj", "{DAF50E05-D916-4D58-A50A-B6626CD58BB6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilitarian.Migrations.Test.Unit", "Utilitarian.Migrations.Test.Unit\Utilitarian.Migrations.Test.Unit.csproj", "{3AF73E7C-8DBA-4FCE-A26B-8922BCA3FBA1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilitarian.Assemblies", "Utilitarian.Assemblies\Utilitarian.Assemblies.csproj", "{AA370114-EC04-4622-AAEA-A761FB511906}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilitarian.Assemblies.Test.Unit", "Utilitarian.Assemblies.Test.Unit\Utilitarian.Assemblies.Test.Unit.csproj", "{03B7C5B5-CD32-4903-A346-F215F719583E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilitarian.Migrations.Test.Integration", "Utilitarian.Migrations.Test.Integration\Utilitarian.Migrations.Test.Integration.csproj", "{A2717884-CE17-4321-AF2F-965E5A73C930}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilitarian.Data.MongoDB", "Utilitarian.Data.MongoDB\Utilitarian.Data.MongoDB.csproj", "{4DBE61C8-090A-4056-8D90-EAF18D49CDA0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilitarian.Data.MongoDB.Test.Integration", "Utilitarian.Data.MongoDB.Test.Integration\Utilitarian.Data.MongoDB.Test.Integration.csproj", "{C1845347-F7B1-40F2-95AB-1EE7545F7302}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,8 +95,39 @@ Global
 		{5079E3D2-7761-4460-9C68-28CF02EA8ED2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5079E3D2-7761-4460-9C68-28CF02EA8ED2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5079E3D2-7761-4460-9C68-28CF02EA8ED2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAF50E05-D916-4D58-A50A-B6626CD58BB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAF50E05-D916-4D58-A50A-B6626CD58BB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAF50E05-D916-4D58-A50A-B6626CD58BB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAF50E05-D916-4D58-A50A-B6626CD58BB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AF73E7C-8DBA-4FCE-A26B-8922BCA3FBA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AF73E7C-8DBA-4FCE-A26B-8922BCA3FBA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AF73E7C-8DBA-4FCE-A26B-8922BCA3FBA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AF73E7C-8DBA-4FCE-A26B-8922BCA3FBA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA370114-EC04-4622-AAEA-A761FB511906}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA370114-EC04-4622-AAEA-A761FB511906}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA370114-EC04-4622-AAEA-A761FB511906}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA370114-EC04-4622-AAEA-A761FB511906}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03B7C5B5-CD32-4903-A346-F215F719583E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03B7C5B5-CD32-4903-A346-F215F719583E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03B7C5B5-CD32-4903-A346-F215F719583E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03B7C5B5-CD32-4903-A346-F215F719583E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2717884-CE17-4321-AF2F-965E5A73C930}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2717884-CE17-4321-AF2F-965E5A73C930}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2717884-CE17-4321-AF2F-965E5A73C930}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2717884-CE17-4321-AF2F-965E5A73C930}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DBE61C8-090A-4056-8D90-EAF18D49CDA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DBE61C8-090A-4056-8D90-EAF18D49CDA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DBE61C8-090A-4056-8D90-EAF18D49CDA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DBE61C8-090A-4056-8D90-EAF18D49CDA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1845347-F7B1-40F2-95AB-1EE7545F7302}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1845347-F7B1-40F2-95AB-1EE7545F7302}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1845347-F7B1-40F2-95AB-1EE7545F7302}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1845347-F7B1-40F2-95AB-1EE7545F7302}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9A74254F-6102-4CA4-A3EC-15A754375928}
 	EndGlobalSection
 EndGlobal

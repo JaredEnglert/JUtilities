@@ -15,11 +15,11 @@ namespace Utilitarian.FluentExcel
 {
     public class NpoiWorkbook
     {
-        private readonly HSSFWorkbook hssfWorkbook;
+        private readonly HSSFWorkbook _hssfWorkbook;
 
         public NpoiWorkbook()
         {
-            hssfWorkbook = new HSSFWorkbook();
+            _hssfWorkbook = new HSSFWorkbook();
         }
 
         public NpoiWorkbook AddWorkSheet<T>(IEnumerable<T> collection, string workSheetName, StylingOptions stylingOptions = null)
@@ -40,7 +40,7 @@ namespace Utilitarian.FluentExcel
                     || a.CreateInstance<ExportAttributeBase>().ShouldExport(collection))
                 ).ToList();
 
-            var worksheet = hssfWorkbook.CreateSheet(workSheetName);
+            var worksheet = _hssfWorkbook.CreateSheet(workSheetName);
             var columnFormatters = new Dictionary<int, short>();
             var styleCache = new Dictionary<string, ICellStyle>();
             
@@ -56,7 +56,7 @@ namespace Utilitarian.FluentExcel
         public MemoryStream ToMemoryStream()
         {
             var stream = new MemoryStream();
-            hssfWorkbook.Write(stream);
+            _hssfWorkbook.Write(stream);
             stream.Position = 0;
 
             return stream;
@@ -64,7 +64,7 @@ namespace Utilitarian.FluentExcel
 
         private short GetXlColor(Color color)
         {
-            var xlPalette = hssfWorkbook.GetCustomPalette();
+            var xlPalette = _hssfWorkbook.GetCustomPalette();
             var xlColour = xlPalette.FindColor(color.R, color.G, color.B) ?? xlPalette.FindSimilarColor(color.R, color.G, color.B);
 
             return xlColour.Indexed;
@@ -81,6 +81,7 @@ namespace Utilitarian.FluentExcel
 
             for (var columnIndex = 0; columnIndex < properties.Count; columnIndex++)
             {
+                // ReSharper disable AssignNullToNotNullAttribute
                 var displayNameAttribute = Attribute.GetCustomAttribute(type.GetProperty(properties[columnIndex].Name), typeof(DisplayNameAttribute)) as DisplayNameAttribute;
                 headerRow.CreateCell(columnIndex).SetCellValue(displayNameAttribute == null ? properties[columnIndex].Name : displayNameAttribute.DisplayName);
                 headerRow.Cells[columnIndex].CellStyle = headerCellStyle;
@@ -90,6 +91,7 @@ namespace Utilitarian.FluentExcel
                 columnFormatters.Add(columnIndex, format);
 
                 var totalsAttribute = Attribute.GetCustomAttribute(type.GetProperty(properties[columnIndex].Name), typeof(FormulaAttribute)) as FormulaAttribute;
+
                 if (totalsAttribute != null)
                 {
                     totalsColumns.Add(new TotalsColumn
@@ -99,6 +101,7 @@ namespace Utilitarian.FluentExcel
                         TotalType = totalsAttribute.FormulaType
                     });
                 }
+                // ReSharper restore AssignNullToNotNullAttribute
             }
 
             worksheet.CreateFreezePane(0, 1);
@@ -206,7 +209,7 @@ namespace Utilitarian.FluentExcel
 
             if (formatId != -1) return formatId;
 
-            return hssfWorkbook.CreateDataFormat().GetFormat(formatAttribute.FormatString);
+            return _hssfWorkbook.CreateDataFormat().GetFormat(formatAttribute.FormatString);
         }
 
         private static string GetCellFormula(FormulaType formulaType, int columnIndex, int rowCount)
@@ -244,12 +247,12 @@ namespace Utilitarian.FluentExcel
 
             if (styleCache.ContainsKey(key)) return styleCache[key];
 
-            var font = hssfWorkbook.CreateFont();
+            var font = _hssfWorkbook.CreateFont();
             font.FontHeightInPoints = fontSize;
             font.Color = fontColorId;
             if (isBold) font.Boldweight = (short)FontBoldWeight.Bold;
 
-            var cellStyle = hssfWorkbook.CreateCellStyle();
+            var cellStyle = _hssfWorkbook.CreateCellStyle();
             cellStyle.SetFont(font);
             cellStyle.DataFormat = format;
             if (horizontalAlignment.HasValue) cellStyle.Alignment = horizontalAlignment.Value;

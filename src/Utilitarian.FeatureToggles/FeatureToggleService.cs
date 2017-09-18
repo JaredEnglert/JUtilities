@@ -20,9 +20,7 @@ namespace Utilitarian.FeatureToggles
 
         public bool IsEnabled(string featureToggleName, object @object = null)
         {
-            return !string.IsNullOrWhiteSpace(featureToggleName) && _featureToggles.ContainsKey(featureToggleName) 
-                ? _featureToggles[featureToggleName].IsEnabled(@object)
-                : false;
+            return !string.IsNullOrWhiteSpace(featureToggleName) && _featureToggles.ContainsKey(featureToggleName) && _featureToggles[featureToggleName].IsEnabled(@object);
         }
     }
 }
