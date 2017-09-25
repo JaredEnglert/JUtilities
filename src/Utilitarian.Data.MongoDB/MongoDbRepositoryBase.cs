@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 
 namespace Utilitarian.Data.MongoDB
 {
@@ -26,13 +24,6 @@ namespace Utilitarian.Data.MongoDB
         public IMongoCollection<T> GetCollection<T>(string collectionName)
         {
             return GetDatabase().GetCollection<T>(collectionName);
-        }
-        
-        public async Task<bool> DatabaseExists()
-        {
-            var databases = (await MongoClient.ListDatabasesAsync()).ToList();
-
-            return databases.Any(d => d.GetValue("name") == DatabaseName);
         }
 
         //protected void RunScript(string script)

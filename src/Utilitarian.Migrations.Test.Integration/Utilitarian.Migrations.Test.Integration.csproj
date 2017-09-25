@@ -74,6 +74,7 @@
   <ItemGroup>
     <Compile Include="Factories\MongoDbVersionRecordFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\MongoDbDatabaseUtilityRepositoryTests.cs" />
     <Compile Include="Repositories\MongoDbVersionRepositoryTests.cs" />
   </ItemGroup>
   <ItemGroup>

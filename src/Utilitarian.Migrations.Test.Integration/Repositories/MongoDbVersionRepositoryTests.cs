@@ -23,22 +23,26 @@ namespace Utilitarian.Migrations.Test.Integration.Repositories
 
         private MongoDbVersionRepository _mongoDbVersionRepository;
 
+        private MongoDbDatabaseUtilityRepository _mongoDbDatabaseUtilityRepository;
+
         #region TestInitialize and TestCleanup
 
         [TestInitialize]
         public void TestInitialize()
         {
             _mongoDbVersionRepository = GetMongoDbVersionRepository();
+            _mongoDbDatabaseUtilityRepository = GetMongoDbDatabaseUtilityRepository();
         }
 
         [TestCleanup]
         public async Task TestCleanup()
         {
-            var exists = await _mongoDbVersionRepository.DatabaseExists();
+            var exists = await _mongoDbDatabaseUtilityRepository.DatabaseExists();
 
-            if (exists) _mongoDbVersionRepository.MongoClient.DropDatabase(DatabaseName);
+            if (exists) await _mongoDbDatabaseUtilityRepository.DropDatabase();
 
             _mongoDbVersionRepository = null;
+            _mongoDbDatabaseUtilityRepository = null;
         }
 
         #endregion TestInitialize and TestCleanup
@@ -179,6 +183,13 @@ namespace Utilitarian.Migrations.Test.Integration.Repositories
             if (connectionStringProvider == null) connectionStringProvider = GetConnectionStringProvider();
 
             return new MongoDbVersionRepository($"{DatabaseName}{Guid.NewGuid()}".Replace("-", string.Empty), connectionStringProvider.Get(DatabaseName));
+        }
+
+        private static MongoDbDatabaseUtilityRepository GetMongoDbDatabaseUtilityRepository(IConnectionStringProvider connectionStringProvider = null)
+        {
+            if (connectionStringProvider == null) connectionStringProvider = GetConnectionStringProvider();
+
+            return new MongoDbDatabaseUtilityRepository($"{DatabaseName}{Guid.NewGuid()}".Replace("-", string.Empty), connectionStringProvider.Get(DatabaseName));
         }
 
         private static IConnectionStringProvider GetConnectionStringProvider()

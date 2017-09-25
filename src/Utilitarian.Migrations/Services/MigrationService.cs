@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Serilog;
-using Utilitarian.Assemblies;
 using Utilitarian.Migrations.Interfaces;
 using Utilitarian.Migrations.Models;
 
@@ -12,52 +11,36 @@ namespace Utilitarian.Migrations.Services
 {
     public class MigrationService : IMigrationService
     {
-        private readonly string _migrationTopic;
-
-        private readonly IAssemblyService _assemblyService;
-
         private readonly IVersionRepository _versionRepository;
 
-        public MigrationService(string migrationTopic, IVersionRepository versionRepository, IAssemblyService assemblyService)
+        private readonly List<Migration> _migrations;
+
+        public MigrationService(IVersionRepository versionRepository, IEnumerable<Migration> migrations)
         {
-            _migrationTopic = migrationTopic;
             _versionRepository = versionRepository;
-
-            _assemblyService = assemblyService;
-
-            Log.Logger.Information("Migration Service Initialized{0}{0}Migration Topic: {1}{0}Database Type: {1}{0}{0}============================================================={0}", 
-                Environment.NewLine, _migrationTopic, _versionRepository.DatabaseType);
+            _migrations = migrations.ToList();
         }
 
-        public MigrationService(string migrationTopic, IVersionRepository versionRepository)
+        public async Task MigrateUpPreRelease(string migrationTopic, IEnumerable<double> versions = null)
         {
-            _migrationTopic = migrationTopic;
-            _versionRepository = versionRepository;
+            var list = (versions ?? new List<double>()).ToList();
 
-            _assemblyService = new AssemblyService();
+            await _versionRepository.InitializeVersionTable();
 
-            Log.Logger.Information("Migration Service Initialized{0}{0}Migration Topic: {1}{0}Database Type: {1}{0}{0}============================================================={0}", 
-                Environment.NewLine, _migrationTopic, _versionRepository.DatabaseType);
-        }
+            var records = await _versionRepository.GetVersionRecords(migrationTopic);
 
-        public async Task MigrateUpPreRelease(IEnumerable<double> versions = null)
-        {
-            await InitializeVersionTable();
-
-            var records = await _versionRepository.GetVersionRecords(_migrationTopic);
-
-            var migrations = _assemblyService.GetAllImplementations<Migration>()
+            var migrations = _migrations
                 .Where(m => records.All(r => !r.Version.Equals(m.Version)))
                 .OrderBy(m => m.Version)
                 .ToList();
 
-            if (versions != null) migrations = migrations.Where(m => versions.Contains(m.Version)).ToList();
+            if (list.Any()) migrations = migrations.Where(m => list.Contains(m.Version)).ToList();
 
             var stopwatch = new Stopwatch();
 
             foreach (var migration in migrations)
             {
-                Log.Logger.Information("Starting execution of MigrateUpPreRelease{0}Version: {1}, Description: {2}", Environment.NewLine, migration.Version, migration.Description);
+                Log.Information("Running Migration.MigrateUpPreRelease{0}{0}\tVersion: {1},{0}\tDescription: {2}{0}", Environment.NewLine, migration.Version, migration.Description);
 
                 stopwatch.Restart();
 
@@ -66,28 +49,30 @@ namespace Utilitarian.Migrations.Services
 
                 stopwatch.Stop();
 
-                Log.Logger.Information("MigrateUpPreRelease Complete{0}Version: {1}, Seconds: {2}", Environment.NewLine, migration.Version, stopwatch.ElapsedMilliseconds / 1000);
+                Log.Information("Migration.MigrateUpPreRelease Complete for Version: {0} ({1}s)", migration.Version, stopwatch.Elapsed.TotalSeconds);
             }
         }
 
-        public async Task MigrateUpPostRelease(IEnumerable<double> versions = null)
+        public async Task MigrateUpPostRelease(string migrationTopic, IEnumerable<double> versions = null)
         {
-            await InitializeVersionTable();
+            var list = (versions ?? new List<double>()).ToList();
 
-            var records = (await _versionRepository.GetVersionRecords(_migrationTopic)).ToList();
+            await _versionRepository.InitializeVersionTable();
 
-            var migrations = _assemblyService.GetAllImplementations<Migration>()
+            var records = (await _versionRepository.GetVersionRecords(migrationTopic)).ToList();
+
+            var migrations = _migrations
                 .Where(m => records.Any(r => r.Version.Equals(m.Version) && r.MigrateUpPostReleaseRan == null))
                 .OrderBy(m => m.Version)
                 .ToList();
 
-            if (versions != null) migrations = migrations.Where(m => versions.Contains(m.Version)).ToList();
+            if (list.Any()) migrations = migrations.Where(m => list.Contains(m.Version)).ToList();
 
             var stopwatch = new Stopwatch();
 
             foreach (var migration in migrations)
             {
-                Log.Logger.Information("Starting execution of MigrateUpPostRelease{0}Version: {1}, Description: {2}", Environment.NewLine, migration.Version, migration.Description);
+                Log.Information("Running Migration.MigrateUpPostRelease{0}{0}\tVersion: {1},{0}\tDescription: {2}{0}", Environment.NewLine, migration.Version, migration.Description);
 
                 stopwatch.Restart();
 
@@ -96,28 +81,30 @@ namespace Utilitarian.Migrations.Services
 
                 stopwatch.Stop();
 
-                Log.Logger.Information("MigrateUpPostRelease Complete{0}Version: {1}, Seconds: {2}", Environment.NewLine, migration.Version, stopwatch.ElapsedMilliseconds / 1000);
+                Log.Information("Migration.MigrateUpPostRelease Complete for Version: {0} ({1}s)", migration.Version, stopwatch.Elapsed.TotalSeconds);
             }
         }
 
-        public async Task MigrateDownPreRollback(IEnumerable<double> versions = null)
+        public async Task MigrateDownPreRollback(string migrationTopic, IEnumerable<double> versions = null)
         {
-            await InitializeVersionTable();
+            var list = (versions ?? new List<double>()).ToList();
 
-            var records = (await _versionRepository.GetVersionRecords(_migrationTopic)).ToList();
+            await _versionRepository.InitializeVersionTable();
 
-            var migrations = _assemblyService.GetAllImplementations<Migration>()
+            var records = (await _versionRepository.GetVersionRecords(migrationTopic)).ToList();
+
+            var migrations = _migrations
                 .Where(m => records.Any(r => r.Version.Equals(m.Version) && r.MigrateUpPostReleaseRan != null))
                 .OrderBy(m => m.Version)
                 .ToList();
 
-            if (versions != null) migrations = migrations.Where(m => versions.Contains(m.Version)).ToList();
+            if (list.Any()) migrations = migrations.Where(m => list.Contains(m.Version)).ToList();
 
             var stopwatch = new Stopwatch();
 
             foreach (var migration in migrations)
             {
-                Log.Logger.Information("Starting execution of MigrateDownPreRollback{0}Version: {1}, Description: {2}", Environment.NewLine, migration.Version, migration.Description);
+                Log.Information("Running Migration.MigrateDownPreRollback{0}{0}\tVersion: {1},{0}\tDescription: {2}{0}", Environment.NewLine, migration.Version, migration.Description);
 
                 stopwatch.Restart();
 
@@ -126,28 +113,30 @@ namespace Utilitarian.Migrations.Services
 
                 stopwatch.Stop();
 
-                Log.Logger.Information("MigrateDownPreRollback Complete{0}Version: {1}, Seconds: {2}", Environment.NewLine, migration.Version, stopwatch.ElapsedMilliseconds / 1000);
+                Log.Information("Migration.MigrateDownPreRollback Complete for Version: {0} ({1}s)", migration.Version, stopwatch.Elapsed.TotalSeconds);
             }
         }
 
-        public async Task MigrateDownPostRollback(IEnumerable<double> versions = null)
+        public async Task MigrateDownPostRollback(string migrationTopic, IEnumerable<double> versions = null)
         {
-            await InitializeVersionTable();
+            var list = (versions ?? new List<double>()).ToList();
 
-            var records = (await _versionRepository.GetVersionRecords(_migrationTopic)).ToList();
+            await _versionRepository.InitializeVersionTable();
 
-            var migrations = _assemblyService.GetAllImplementations<Migration>()
+            var records = (await _versionRepository.GetVersionRecords(migrationTopic)).ToList();
+
+            var migrations = _migrations
                 .Where(m => records.Any(r => r.Version.Equals(m.Version) && r.MigrateUpPostReleaseRan == null))
                 .OrderBy(m => m.Version)
                 .ToList();
 
-            if (versions != null) migrations = migrations.Where(m => versions.Contains(m.Version)).ToList();
+            if (list.Any()) migrations = migrations.Where(m => list.Contains(m.Version)).ToList();
 
             var stopwatch = new Stopwatch();
 
             foreach (var migration in migrations)
             {
-                Log.Logger.Information("Starting execution of MigrateDownPostRollback{0}Version: {1}, Description: {2}", Environment.NewLine, migration.Version, migration.Description);
+                Log.Information("Running Migration.MigrateDownPostRollback{0}{0}\tVersion: {1},{0}\tDescription: {2}{0}", Environment.NewLine, migration.Version, migration.Description);
 
                 stopwatch.Restart();
 
@@ -156,13 +145,8 @@ namespace Utilitarian.Migrations.Services
 
                 stopwatch.Stop();
 
-                Log.Logger.Information("MigrateDownPostRollback Complete{0}Version: {1}, Seconds: {2}", Environment.NewLine, migration.Version, stopwatch.ElapsedMilliseconds / 1000);
+                Log.Information("Migration.MigrateDownPostRollback Complete for Version: {0} ({1}s)", migration.Version, stopwatch.Elapsed.TotalSeconds);
             }
-        }
-
-        private async Task InitializeVersionTable()
-        {
-            await _versionRepository.InitializeVersionTable();
         }
     }
 }

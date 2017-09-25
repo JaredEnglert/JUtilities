@@ -4,15 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DAF50E05-D916-4D58-A50A-B6626CD58BB6}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Utilitarian.Migrations</RootNamespace>
-    <AssemblyName>Utilitarian.Migrations</AssemblyName>
+    <ProjectGuid>{06D33D38-66ED-4BBE-8DDC-8F4A8689A146}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Utilitarian.Migrations.Console</RootNamespace>
+    <AssemblyName>Utilitarian.Migrations.Console</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -30,24 +32,26 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MongoDB.Bson, Version=2.4.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MongoDB.Bson.2.4.4\lib\net45\MongoDB.Bson.dll</HintPath>
+    <Reference Include="ManyConsole, Version=0.4.2.20, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ManyConsole.0.4.2.20\lib\ManyConsole.dll</HintPath>
     </Reference>
-    <Reference Include="MongoDB.Driver, Version=2.4.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MongoDB.Driver.2.4.4\lib\net45\MongoDB.Driver.dll</HintPath>
-    </Reference>
-    <Reference Include="MongoDB.Driver.Core, Version=2.4.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MongoDB.Driver.Core.2.4.4\lib\net45\MongoDB.Driver.Core.dll</HintPath>
+    <Reference Include="NDesk.Options, Version=0.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NDesk.Options.0.2.1\lib\NDesk.Options.dll</HintPath>
     </Reference>
     <Reference Include="Serilog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
       <HintPath>..\packages\Serilog.2.5.0\lib\net46\Serilog.dll</HintPath>
     </Reference>
+    <Reference Include="Serilog.Sinks.ColoredConsole, Version=3.0.1.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.Sinks.ColoredConsole.3.0.1\lib\net45\Serilog.Sinks.ColoredConsole.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog.Sinks.Console, Version=3.1.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.Sinks.Console.3.1.0\lib\net45\Serilog.Sinks.Console.dll</HintPath>
+    </Reference>
+    <Reference Include="StructureMap, Version=4.5.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\StructureMap.4.5.2\lib\net45\StructureMap.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -56,36 +60,34 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Interfaces\IDatabaseUtilityService.cs" />
-    <Compile Include="Interfaces\IMigrationService.cs" />
-    <Compile Include="Interfaces\IVersionRepository.cs" />
-    <Compile Include="Interfaces\IRepositoryService.cs" />
-    <Compile Include="Models\Migration.cs" />
-    <Compile Include="Models\MongoDbVersionRecord.cs" />
-    <Compile Include="Models\VersionRecord.cs" />
+    <Compile Include="Commands\DropDatabaseCommand.cs" />
+    <Compile Include="Commands\MigrateDownPostRollbackCommand.cs" />
+    <Compile Include="Commands\MigrateDownPreRollbackCommand.cs" />
+    <Compile Include="Commands\MigrateUpPostReleaseCommand.cs" />
+    <Compile Include="Commands\MigrateUpPreReleaseCommand.cs" />
+    <Compile Include="ConsoleRegistry.cs" />
+    <Compile Include="Migrations\TestMigration.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repositories\MongoDb\MongoDbDatabaseUtilityRepository.cs" />
-    <Compile Include="Repositories\MongoDb\MongoDbVersionRepository.cs" />
-    <Compile Include="Services\MigrationService.cs" />
-    <Compile Include="Services\RepositoryService.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Utilitarian.Data.MongoDB\Utilitarian.Data.MongoDB.csproj">
       <Project>{4DBE61C8-090A-4056-8D90-EAF18D49CDA0}</Project>
       <Name>Utilitarian.Data.MongoDB</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Utilitarian.Extensions\Utilitarian.Extensions.csproj">
-      <Project>{05291AD2-5A85-4073-AA58-36F035B0F75E}</Project>
-      <Name>Utilitarian.Extensions</Name>
+    <ProjectReference Include="..\Utilitarian.Migrations\Utilitarian.Migrations.csproj">
+      <Project>{DAF50E05-D916-4D58-A50A-B6626CD58BB6}</Project>
+      <Name>Utilitarian.Migrations</Name>
     </ProjectReference>
     <ProjectReference Include="..\Utilitarian.Settings\Utilitarian.Settings.csproj">
       <Project>{203F2B50-C86E-4B15-AD0D-5F5860ADA816}</Project>
       <Name>Utilitarian.Settings</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
