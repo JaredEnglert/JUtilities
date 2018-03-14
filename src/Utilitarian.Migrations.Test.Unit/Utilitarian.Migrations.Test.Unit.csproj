@@ -70,6 +70,10 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <ProjectReference Include="..\Utilitarian.Data.MongoDB\Utilitarian.Data.MongoDB.csproj">
+      <Project>{4DBE61C8-090A-4056-8D90-EAF18D49CDA0}</Project>
+      <Name>Utilitarian.Data.MongoDB</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Utilitarian.Migrations\Utilitarian.Migrations.csproj">
       <Project>{DAF50E05-D916-4D58-A50A-B6626CD58BB6}</Project>
       <Name>Utilitarian.Migrations</Name>

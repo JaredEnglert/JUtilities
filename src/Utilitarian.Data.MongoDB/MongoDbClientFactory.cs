@@ -14,8 +14,7 @@ namespace Utilitarian.Data.MongoDB
 
         public static MongoClient GetMongoClient(string databaseName, string connectionString)
         {
-            MongoClient mongoClient;
-            MongoClients.TryGetValue(databaseName, out mongoClient);
+            MongoClients.TryGetValue(databaseName, out MongoClient mongoClient);
 
             if (mongoClient != null) return mongoClient;
 

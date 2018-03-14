@@ -25,10 +25,5 @@ namespace Utilitarian.Data.MongoDB
         {
             return GetDatabase().GetCollection<T>(collectionName);
         }
-
-        //protected void RunScript(string script)
-        //{
-        //    GetDatabase().Eval("");
-        //}
     }
 }

@@ -22,7 +22,7 @@ namespace Utilitarian.Migrations.Repositories.MongoDb
 
         public async Task InitializeVersionTable()
         {
-            await Task.Run(() => { });
+            await VersionRecords.Indexes.CreateOneAsync(Builders<MongoDbVersionRecord>.IndexKeys.Ascending(_ => _.MigrationTopic));
         }
 
         public async Task<IEnumerable<VersionRecord>> GetVersionRecords(string migrationTopic)

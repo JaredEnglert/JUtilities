@@ -13,11 +13,18 @@ namespace Utilitarian.Migrations.Repositories.MongoDb
         {
         }
 
+        public string DatabaseType => "MongoDB";
+
         public async Task<bool> DatabaseExists()
         {
             var databases = (await MongoClient.ListDatabasesAsync()).ToList();
 
             return databases.Any(d => d.GetValue("name") == DatabaseName);
+        }
+
+        protected async Task RunScript(string script)
+        {
+            await Task.Delay(0);
         }
 
         public async Task DropDatabase()

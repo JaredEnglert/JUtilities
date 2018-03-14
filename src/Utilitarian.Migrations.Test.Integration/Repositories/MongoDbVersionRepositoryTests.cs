@@ -17,9 +17,9 @@ namespace Utilitarian.Migrations.Test.Integration.Repositories
     [TestClass]
     public class MongoDbVersionRepositoryTests
     {
-        private const string DatabaseName = "Mongo";
-
         private const string MigrationTopic = "MigrationTopic";
+
+        private string _databaseName;
 
         private MongoDbVersionRepository _mongoDbVersionRepository;
 
@@ -30,6 +30,7 @@ namespace Utilitarian.Migrations.Test.Integration.Repositories
         [TestInitialize]
         public void TestInitialize()
         {
+            _databaseName = $"Mongo{Guid.NewGuid()}".Replace("-", string.Empty);
             _mongoDbVersionRepository = GetMongoDbVersionRepository();
             _mongoDbDatabaseUtilityRepository = GetMongoDbDatabaseUtilityRepository();
         }
@@ -56,10 +57,30 @@ namespace Utilitarian.Migrations.Test.Integration.Repositories
         }
 
         [TestMethod]
-        public async Task InitializeVersionTable_CallMoreThanOnce_ShouldExecute()
+        public async Task InitializeVersionTable_ShouldCreateIndex()
+        {
+            await _mongoDbVersionRepository.InitializeVersionTable();
+
+            var indexes = await _mongoDbVersionRepository.VersionRecords.Indexes.ListAsync();
+            var list = await indexes.ToListAsync();
+
+            list.Count.Should().Be(2);
+            ((int)list[0]["key"].AsBsonValue["_id"].AsBsonValue).Should().Be(1);
+            ((int)list[1]["key"].AsBsonValue["MigrationTopic"].AsBsonValue).Should().Be(1);
+        }
+        
+        [TestMethod]
+        public async Task InitializeVersionTable_CallMoreThanOnce_ShouldNotDuplicateIndexes()
         {
             await _mongoDbVersionRepository.InitializeVersionTable();
             await _mongoDbVersionRepository.InitializeVersionTable();
+
+            var indexes = await _mongoDbVersionRepository.VersionRecords.Indexes.ListAsync();
+            var list = await indexes.ToListAsync();
+
+            list.Count.Should().Be(2);
+            ((int)list[0]["key"].AsBsonValue["_id"].AsBsonValue).Should().Be(1);
+            ((int)list[1]["key"].AsBsonValue["MigrationTopic"].AsBsonValue).Should().Be(1);
         }
 
         #endregion InitializeVersionTable Method
@@ -178,18 +199,18 @@ namespace Utilitarian.Migrations.Test.Integration.Repositories
 
         #region Private Methods
 
-        private static MongoDbVersionRepository GetMongoDbVersionRepository(IConnectionStringProvider connectionStringProvider = null)
+        private MongoDbVersionRepository GetMongoDbVersionRepository(IConnectionStringProvider connectionStringProvider = null)
         {
             if (connectionStringProvider == null) connectionStringProvider = GetConnectionStringProvider();
 
-            return new MongoDbVersionRepository($"{DatabaseName}{Guid.NewGuid()}".Replace("-", string.Empty), connectionStringProvider.Get(DatabaseName));
+            return new MongoDbVersionRepository(_databaseName, connectionStringProvider.Get("Mongo"));
         }
 
-        private static MongoDbDatabaseUtilityRepository GetMongoDbDatabaseUtilityRepository(IConnectionStringProvider connectionStringProvider = null)
+        private MongoDbDatabaseUtilityRepository GetMongoDbDatabaseUtilityRepository(IConnectionStringProvider connectionStringProvider = null)
         {
             if (connectionStringProvider == null) connectionStringProvider = GetConnectionStringProvider();
 
-            return new MongoDbDatabaseUtilityRepository($"{DatabaseName}{Guid.NewGuid()}".Replace("-", string.Empty), connectionStringProvider.Get(DatabaseName));
+            return new MongoDbDatabaseUtilityRepository(_databaseName, connectionStringProvider.Get("Mongo"));
         }
 
         private static IConnectionStringProvider GetConnectionStringProvider()
